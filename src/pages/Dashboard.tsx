@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 const mockAiService = new MockAiService();
 
-export const Builder: React.FC = () => {
+export const Dashboard: React.FC = () => {
   const [currentPipeline, setCurrentPipeline] = useState<Pipeline>({
     id: 'default',
     name: 'My AI Pipeline',
@@ -50,7 +50,7 @@ export const Builder: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/20">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 text-ai-secondary">
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
             {currentPipeline.name}
@@ -82,4 +82,4 @@ export const Builder: React.FC = () => {
   );
 };
 
-export default Builder
+export default Dashboard

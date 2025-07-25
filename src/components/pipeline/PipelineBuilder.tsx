@@ -114,26 +114,27 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-card border-border/50 bg-card/50 backdrop-blur-sm">
+      <Card className="shadow-card border-border/50 bg-card/50 border-color-0 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 text-ai-secondary">
               <span>Pipeline Steps</span>
               {steps.length > 0 && (
-                <span className="text-sm font-normal text-muted-foreground">
+                <span className="text-sm font-normal text-ai-secondary">
                   ({steps.length} step{steps.length !== 1 ? 's' : ''})
                 </span>
               )}
             </CardTitle>
             <div className="flex space-x-2">
-              <Button
-                variant="pipeline"
-                size="sm"
+              <div
+                className='flex justify-between item-center text-ai-secondary gap-1'
                 onClick={() => setAddStepOpen(true)}
               >
-                <Plus className="w-4 h-4" />
-                Add Step
-              </Button>
+                <Plus className="w-4 h-4 mt-1" />
+                <p>
+                  Add Step
+                </p>
+              </div>
               {steps.length > 0 && (
                 <>
                   <Button
@@ -162,19 +163,21 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
           {steps.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-secondary rounded-xl flex items-center justify-center">
-                <Plus className="w-8 h-8 text-muted-foreground" />
+                <Plus className="w-8 h-8 text-ai-secondary" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No steps added yet</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="text-lg font-semibold mb-2 text-ai-secondary">No steps added yet</h3>
+              <p className="text-ai-secondary mb-4">
                 Start building your AI pipeline by adding your first step
               </p>
-              <Button
-                variant="ai"
+              <div
+                className='text-ai-secondary flex justify-center item-center gap-1'
                 onClick={() => setAddStepOpen(true)}
               >
-                <Plus className="w-4 h-4" />
-                Add First Step
-              </Button>
+                <Plus className="w-4 h-4 mt-1" />
+                <div>
+                  Add First Step
+                </div>
+              </div>
             </div>
           ) : (
             <DndContext

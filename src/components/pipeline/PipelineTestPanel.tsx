@@ -51,7 +51,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-card border-border/50 bg-card/50 backdrop-blur-sm">
+      <Card className="shadow-card border-border/50 bg-card/50 backdrop-blur-sm text-ai-secondary">
         <CardHeader>
           <CardTitle>Test Input</CardTitle>
         </CardHeader>
@@ -61,10 +61,10 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={6}
-            className="resize-none"
+            className="resize-none text-white"
           />
           <div className="flex justify-between items-center">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-ai-secondary">
               Characters: {input.length}
             </div>
             <Button
