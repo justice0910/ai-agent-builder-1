@@ -1,143 +1,262 @@
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
-import React, { useState } from 'react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Bot } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import {  Mail, Lock, Zap, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
-const Auth: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [isSignUp, setIsSignUp] = useState<boolean>(false);
+export const Auth : React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pendingEmail, setPendingEmail] = useState('');
+  const { login, signup, resendConfirmationEmail, isLoading, requiresEmailConfirmation } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleAuth = async (e: React.FormEvent) => {
+  // Check if user is returning from email confirmation
+  useEffect(() => {
+    const confirmed = searchParams.get('confirmed');
+    if (confirmed === 'true') {
+      toast.success('Email confirmed! You can now sign in.');
+    }
+  }, [searchParams]);
+
+  const handleAuth = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+    
+    // Validate password confirmation for signup
+    if (isSignUp && password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
     try {
-      let response;
       if (isSignUp) {
-        response = await supabase.auth.signUp({ email, password });
+        await signup(email, password);
+        setPendingEmail(email);
+        toast.success('Account created! Please check your email to confirm your account.');
       } else {
-        response = await supabase.auth.signInWithPassword({ email, password });
+        await login(email, password);
+        toast.success('Signed in successfully!');
+        navigate('/dashboard');
       }
-      if (response.error) throw response.error;
-      navigate('/builder');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      alert('Authentication error: ' + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+      toast.error(errorMessage);
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
+  const handleResendConfirmation = async () => {
+    try {
+      await resendConfirmationEmail(pendingEmail);
+      toast.success('Confirmation email sent! Please check your inbox.');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to resend email';
+      toast.error(errorMessage);
+    }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-accent/20 p-4">
-      <div className="w-full max-w-md space-y-8">
-      <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
-              <Bot className="w-8 h-8 text-white" />
+  // Show email confirmation UI
+  if (requiresEmailConfirmation || pendingEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {/* Logo/Branding */}
+          <div className="text-center mb-8">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
+              <Zap className="h-8 w-8 text-primary-foreground" />
             </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent">
+              AI Agent Builder
+            </h1>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+
+          <Card className="shadow-ai">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                <AlertCircle className="h-6 w-6 text-yellow-600" />
+              </div>
+              <CardTitle>Email Confirmation Required</CardTitle>
+              <CardDescription>
+                Please check your email and confirm your account before signing in.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center text-sm text-muted-foreground">
+                <p>We sent a confirmation email to:</p>
+                <p className="font-medium text-foreground mt-1">{pendingEmail}</p>
+              </div>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleResendConfirmation}
+                  variant="outline" 
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Sending...' : 'Resend Confirmation Email'}
+                </Button>
+                
+                <Button 
+                  onClick={() => {
+                    setPendingEmail('');
+                    setIsSignUp(false);
+                  }}
+                  variant="ghost" 
+                  className="w-full"
+                >
+                  Back to Sign In
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo/Branding */}
+        <div className="text-center mb-8">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
+            <Zap className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent">
             AI Agent Builder
           </h1>
           <p className="text-muted-foreground mt-2">
-            Design and run custom AI pipelines
+            Create powerful AI workflows in minutes
           </p>
         </div>
 
-        <Card className="shadow-card border-border/50">
-          <CardHeader>
-            <CardTitle className="text-xl">Welcome back</CardTitle>
+        <Card className="shadow-ai">
+          <CardHeader className="text-center">
+            <CardTitle>
+              {!isSignUp ? 'Sign In' : 'Create Account'}
+            </CardTitle>
             <CardDescription>
-              Sign in to your account to continue building AI workflows
+              {isSignUp 
+                ? 'Start building your first AI pipeline today'
+                : 'Sign in to access your AI pipelines'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full p-2 border rounded"
-          required
-        />
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-2 border rounded"
-          required
-        />
-        <Button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
-          {isSignUp ? 'Sign Up' : 'Sign In'}
-        </Button>
-      </form>
-      <Button
-        onClick={() => setIsSignUp(!isSignUp)}
-        className="mt-4 text-blue-500 underline"
-      >
-        {isSignUp ? 'Switch to Sign In' : 'Switch to Sign Up'}
-      </Button>
-      <Button
-        onClick={handleSignOut}
-        className="mt-2 text-red-500 underline"
-      >
-        Sign Out
-      </Button>
+            <form  onSubmit={handleAuth} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              {isSignUp && <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pl-10"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>}
+                
+              
+
+                <Button 
+                type="submit" 
+                variant="ai" 
+                className="w-full" 
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Loading...' : (!isSignUp ? 'Sign In' : 'Create Account')}
+              </Button>
+            </form>
+
+            <div className="mt-6">
+              <Separator />
+              <div className="text-center mt-4">
+                <p className="text-sm text-muted-foreground">
+                  {!isSignUp ? "Don't have an account?" : "Already have an account?"}
+                  <Button
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setPendingEmail('');
+                    }}
+                    variant="link"
+                    className="ml-1 p-0 h-auto text-ai-primary"
+                    disabled={isLoading}
+                  >
+                    {!isSignUp ? 'Sign up' : 'Sign in'}
+                  </Button>
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <h1 className="text-2xl font-bold mb-4">{isSignUp ? 'Sign Up' : 'Sign In'}</h1>
-      <form onSubmit={handleAuth} className="space-y-4">
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full p-2 border rounded"
-          required
-        />
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-2 border rounded"
-          required
-        />
-        <Button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
-          {isSignUp ? 'Sign Up' : 'Sign In'}
-        </Button>
-      </form>
-      <Button
-        onClick={() => setIsSignUp(!isSignUp)}
-        className="mt-4 text-blue-500 underline"
-      >
-        {isSignUp ? 'Switch to Sign In' : 'Switch to Sign Up'}
-      </Button>
-      <Button
-        onClick={handleSignOut}
-        className="mt-2 text-red-500 underline"
-      >
-        Sign Out
-      </Button>
-      </div>     
+
+        {/* Features Preview */}
+        <div className="mt-8 text-center">
+          <p className="text-xs text-muted-foreground mb-4">Trusted by AI enthusiasts worldwide</p>
+          <div className="flex justify-center gap-6 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <span>📝</span> Summarize
+            </div>
+            <div className="flex items-center gap-1">
+              <span>🌐</span> Translate
+            </div>
+            <div className="flex items-center gap-1">
+              <span>✍️</span> Rewrite
+            </div>
+            <div className="flex items-center gap-1">
+              <span>🔍</span> Extract
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    
   );
-};
+}
 
 export default Auth;

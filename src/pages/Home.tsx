@@ -3,12 +3,14 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Zap, Play, Code, Brain, Users, CheckCircle } from 'lucide-react';
 import heroImage from '@/assets/hero-ai-pipeline.jpg';
+import { useNavigate } from 'react-router-dom';
 
-interface LandingProps {
-  onGetStarted: () => void;
-}
 
-export function Landing ({ onGetStarted }: LandingProps) {
+
+export const Home: React.FC = () => {
+    
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: '🔄',
@@ -54,7 +56,7 @@ export function Landing ({ onGetStarted }: LandingProps) {
               AI Agent Builder
             </span>
           </div>
-          <Button variant="ai" className='bg-ai-secondary' onClick={onGetStarted}>
+          <Button variant="ai" className='bg-ai-secondary' onClick={()=>{navigate('/dashboard');}}>
             Get Started
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -85,7 +87,7 @@ export function Landing ({ onGetStarted }: LandingProps) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button variant="default" size="lg" onClick={onGetStarted}>
+                <Button variant="default" size="lg" onClick={()=>{navigate('/dashboard');}}>
                   <Play className="mr-2 h-5 w-5" />
                   Start Building Free
                 </Button>
@@ -168,7 +170,7 @@ export function Landing ({ onGetStarted }: LandingProps) {
               </div>
 
               <div className="mt-8">
-                <Button variant="ai" size="lg" onClick={onGetStarted}>
+                <Button variant="ai" size="lg" onClick={()=>{navigate('/dashboard');}}>
                   Start Your Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -219,7 +221,7 @@ export function Landing ({ onGetStarted }: LandingProps) {
               Join thousands of teams using AI Agent Builder to automate their content processing
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="default" size="lg" onClick={onGetStarted}>
+              <Button variant="default" size="lg" onClick={()=>{navigate('/dashboard');}}>
                 <Zap className="mr-2 h-5 w-5" />
                 Get Started for Free
               </Button>
@@ -253,3 +255,5 @@ export function Landing ({ onGetStarted }: LandingProps) {
     </div>
   );
 }
+
+export default Home;

@@ -58,6 +58,8 @@ export default {
 					secondary: 'hsl(var(--ai-secondary))',
 					glow: 'hsl(var(--ai-glow))'
 				},
+				'ai-primary': 'hsl(var(--ai-primary))',
+				'ai-secondary': 'hsl(var(--ai-secondary))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -108,6 +110,19 @@ export default {
 			},
 			backgroundSize: {
 				'200': '200% 200%'
+			},
+			boxShadow: {
+				'ai': '0 10px 40px -10px hsl(var(--ai-primary) / 0.3)',
+				'glow': '0 0 30px hsl(var(--ai-glow) / 0.4)',
+				'card': '0 4px 20px -2px hsl(230 25% 5% / 0.4)'
+			},
+			textColor: {
+				'ai-primary': 'hsl(var(--ai-primary))',
+				'ai-secondary': 'hsl(var(--ai-secondary))'
+			},
+			backgroundColor: {
+				'ai-primary': 'hsl(var(--ai-primary))',
+				'ai-secondary': 'hsl(var(--ai-secondary))'
 			}
 		}
 	},
