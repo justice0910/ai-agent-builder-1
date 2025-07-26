@@ -14,228 +14,182 @@ export interface AuthResponse {
 }
 
 class AuthService {
-  private isSupabaseAvailable(): boolean {
-    return import.meta.env.VITE_SUPABASE_URL && 
-           import.meta.env.VITE_SUPABASE_URL !== 'https://your-project.supabase.co' &&
-           import.meta.env.VITE_SUPABASE_ANON_KEY && 
-           import.meta.env.VITE_SUPABASE_ANON_KEY !== 'your-anon-key';
-  }
-
   async signUp(email: string, password: string): Promise<AuthResponse> {
-    if (this.isSupabaseAvailable()) {
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth?confirmed=true`
-          }
-        });
-        
-        if (error) throw error;
-        
-        if (data.user) {
-          // Check if email confirmation is required
-          const emailConfirmed = data.user.email_confirmed_at !== null;
-          
-          const user: User = {
-            id: data.user.id,
-            email: data.user.email || '',
-            name: data.user.email?.split('@')[0] || 'User',
-            emailConfirmed,
-          };
-          
-          if (!emailConfirmed) {
-            return { 
-              user: null, 
-              requiresEmailConfirmation: true,
-              error: 'Please check your email and confirm your account before signing in.'
-            };
-          }
-          
-          return { user };
-        }
-        return { user: null };
-      } catch (error) {
-        return { 
-          user: null, 
-          error: error instanceof Error ? error.message : 'Signup failed' 
-        };
-      }
-    } else {
-      // Mock authentication for development
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const user: User = {
-        id: 'dev-user-' + Date.now(),
+    try {
+      console.log('🔐 Using Supabase for signup');
+      const { data, error } = await supabase.auth.signUp({
         email,
-        name: email.split('@')[0],
-        emailConfirmed: true, // Mock users are automatically confirmed
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth?confirmed=true`
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data.user) {
+        // Check if email confirmation is required
+        const emailConfirmed = data.user.email_confirmed_at !== null;
+        
+        const user: User = {
+          id: data.user.id,
+          email: data.user.email || '',
+          name: data.user.email?.split('@')[0] || 'User',
+          emailConfirmed,
+        };
+        
+        if (!emailConfirmed) {
+          return { 
+            user: null, 
+            requiresEmailConfirmation: true,
+            error: 'Please check your email and confirm your account before signing in.'
+          };
+        }
+        
+        return { user };
+      }
+      return { user: null };
+    } catch (error) {
+      console.error('❌ Supabase signup error:', error);
+      return { 
+        user: null, 
+        error: error instanceof Error ? error.message : 'Signup failed' 
       };
-      localStorage.setItem('dev-user', JSON.stringify(user));
-      return { user };
     }
   }
 
   async signIn(email: string, password: string): Promise<AuthResponse> {
-    if (this.isSupabaseAvailable()) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        if (data.user) {
-          // Check if email is confirmed
-          const emailConfirmed = data.user.email_confirmed_at !== null;
-          
-          if (!emailConfirmed) {
-            return { 
-              user: null, 
-              requiresEmailConfirmation: true,
-              error: 'Please confirm your email before signing in.'
-            };
-          }
-          
-          const user: User = {
-            id: data.user.id,
-            email: data.user.email || '',
-            name: data.user.email?.split('@')[0] || 'User',
-            emailConfirmed,
-          };
-          return { user };
-        }
-        return { user: null };
-      } catch (error) {
-        return { 
-          user: null, 
-          error: error instanceof Error ? error.message : 'Sign in failed' 
-        };
-      }
-    } else {
-      // Mock authentication for development
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const user: User = {
-        id: 'dev-user-' + Date.now(),
+    try {
+      console.log('🔐 Using Supabase for signin');
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        name: email.split('@')[0],
-        emailConfirmed: true, // Mock users are automatically confirmed
+        password,
+      });
+      
+      if (error) throw error;
+      
+      if (data.user) {
+        // Check if email is confirmed
+        const emailConfirmed = data.user.email_confirmed_at !== null;
+        
+        if (!emailConfirmed) {
+          return { 
+            user: null, 
+            requiresEmailConfirmation: true,
+            error: 'Please confirm your email before signing in.'
+          };
+        }
+        
+        const user: User = {
+          id: data.user.id,
+          email: data.user.email || '',
+          name: data.user.email?.split('@')[0] || 'User',
+          emailConfirmed,
+        };
+        console.log('✅ Supabase signin successful:', user);
+        return { user };
+      }
+      return { user: null };
+    } catch (error) {
+      console.error('❌ Supabase signin error:', error);
+      return { 
+        user: null, 
+        error: error instanceof Error ? error.message : 'Sign in failed' 
       };
-      localStorage.setItem('dev-user', JSON.stringify(user));
-      return { user };
     }
   }
 
   async signOut(): Promise<AuthResponse> {
-    if (this.isSupabaseAvailable()) {
-      try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        return { user: null };
-      } catch (error) {
-        return { 
-          user: null, 
-          error: error instanceof Error ? error.message : 'Sign out failed' 
-        };
-      }
-    } else {
-      // Mock sign out for development
-      localStorage.removeItem('dev-user');
+    try {
+      console.log('🚪 Using Supabase for signout');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      console.log('✅ Supabase signout successful');
       return { user: null };
+    } catch (error) {
+      console.error('❌ Supabase signout error:', error);
+      return { 
+        user: null, 
+        error: error instanceof Error ? error.message : 'Sign out failed' 
+      };
     }
   }
 
   async getCurrentUser(): Promise<User | null> {
-    if (this.isSupabaseAvailable()) {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const emailConfirmed = user.email_confirmed_at !== null;
-          
-          // Only return user if email is confirmed
-          if (!emailConfirmed) {
-            return null;
-          }
-          
-          return {
-            id: user.id,
-            email: user.email || '',
-            name: user.email?.split('@')[0] || 'User',
-            emailConfirmed,
-          };
-        }
-        return null;
-      } catch (error) {
-        console.error('Error getting current user:', error);
+    try {
+      console.log('🔍 Getting current user from Supabase');
+      
+      // First check if we have a session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('❌ Error getting session:', sessionError);
         return null;
       }
-    } else {
-      // Mock user for development
-      const storedUser = localStorage.getItem('dev-user');
-      return storedUser ? JSON.parse(storedUser) : null;
+      
+      if (!session) {
+        console.log('ℹ️ No active Supabase session found');
+        return null;
+      }
+      
+      console.log('✅ Supabase session found, checking user...');
+      
+      // Get user from session
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('❌ Error getting user:', userError);
+        return null;
+      }
+      
+      if (user) {
+        const emailConfirmed = user.email_confirmed_at !== null;
+        
+        // Only return user if email is confirmed
+        if (!emailConfirmed) {
+          console.log('⚠️ User email not confirmed, returning null');
+          return null;
+        }
+        
+        const userData = {
+          id: user.id,
+          email: user.email || '',
+          name: user.email?.split('@')[0] || 'User',
+          emailConfirmed,
+        };
+        console.log('✅ Current Supabase user found:', userData);
+        return userData;
+      }
+      console.log('ℹ️ No Supabase user found');
+      return null;
+    } catch (error) {
+      console.error('❌ Error getting current Supabase user:', error);
+      return null;
     }
   }
 
   async resendConfirmationEmail(email: string): Promise<AuthResponse> {
-    if (this.isSupabaseAvailable()) {
-      try {
-        const { error } = await supabase.auth.resend({
-          type: 'signup',
-          email,
-        });
-        
-        if (error) throw error;
-        
-        return { 
-          user: null,
-          error: 'Confirmation email sent. Please check your inbox.'
-        };
-      } catch (error) {
-        return { 
-          user: null, 
-          error: error instanceof Error ? error.message : 'Failed to resend confirmation email' 
-        };
-      }
-    } else {
-      // Mock resend for development
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+      
+      if (error) throw error;
+      
       return { 
         user: null,
-        error: 'Mock confirmation email sent. Please check your inbox.'
+        error: 'Confirmation email sent. Please check your inbox.'
+      };
+    } catch (error) {
+      return { 
+        user: null, 
+        error: error instanceof Error ? error.message : 'Failed to resend confirmation email' 
       };
     }
   }
 
   onAuthStateChange(callback: (event: string, session: unknown) => void) {
-    if (this.isSupabaseAvailable()) {
-      return supabase.auth.onAuthStateChange(callback);
-    } else {
-      // Mock auth state change for development
-      const checkUser = () => {
-        const user = localStorage.getItem('dev-user');
-        if (user) {
-          callback('SIGNED_IN', { user: JSON.parse(user) });
-        } else {
-          callback('SIGNED_OUT', null);
-        }
-      };
-      
-      // Check initial state
-      checkUser();
-      
-      // Listen for storage changes
-      window.addEventListener('storage', checkUser);
-      
-      return {
-        data: {
-          subscription: {
-            unsubscribe: () => {
-              window.removeEventListener('storage', checkUser);
-            }
-          }
-        }
-      };
-    }
+    console.log('🔧 Setting up Supabase auth state listener');
+    return supabase.auth.onAuthStateChange(callback);
   }
 }
 

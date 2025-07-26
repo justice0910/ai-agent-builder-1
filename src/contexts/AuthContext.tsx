@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authService, type User } from '../services/authService';
+import { supabase } from '../lib/supabaseClient';
 
 interface AuthContextType {
   user: User | null;
@@ -9,6 +10,7 @@ interface AuthContextType {
   resendConfirmationEmail: (email: string) => Promise<void>;
   isLoading: boolean;
   requiresEmailConfirmation: boolean;
+  isAuthenticated: boolean; // New: indicates if auth check is complete
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,26 +31,68 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // New: track if auth check is complete
   const [requiresEmailConfirmation, setRequiresEmailConfirmation] = useState(false);
 
-  useEffect(() => {
-    // Check for existing session
-    const checkUser = async () => {
-      try {
-        const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error('Error checking user session:', error);
-      } finally {
-        setIsLoading(false);
+  // Function to check and restore user session with enhanced logging
+  const checkAndRestoreSession = async () => {
+    try {
+      console.log('🔄 Checking for existing user session...');
+      
+      // First check Supabase session directly
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('✅ Supabase session found:', session.user.email);
+        console.log('📅 Session expires at:', new Date(session.expires_at! * 1000));
+        
+        // Check if session is expired
+        const now = Math.floor(Date.now() / 1000);
+        if (session.expires_at && session.expires_at < now) {
+          console.log('⚠️ Session expired, attempting token refresh...');
+          const { data: { session: refreshedSession } } = await supabase.auth.refreshSession();
+          if (refreshedSession) {
+            console.log('✅ Session refreshed successfully');
+          } else {
+            console.log('❌ Failed to refresh session');
+            setUser(null);
+            setIsLoading(false);
+            setIsAuthenticated(true);
+            return;
+          }
+        }
+      } else {
+        console.log('ℹ️ No Supabase session found');
       }
-    };
+      
+      // Now get user through our service
+      const currentUser = await authService.getCurrentUser();
+      console.log('📋 Current user found:', currentUser);
+      
+      if (currentUser) {
+        console.log('✅ Restoring user session:', currentUser.email);
+        setUser(currentUser);
+      } else {
+        console.log('ℹ️ No active session found');
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('❌ Error checking user session:', error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+      setIsAuthenticated(true); // Mark authentication check as complete
+    }
+  };
 
-    checkUser();
+  useEffect(() => {
+    // Initial session check
+    checkAndRestoreSession();
 
     // Listen for auth state changes
     const { data: { subscription } } = authService.onAuthStateChange(
       async (event, session) => {
+        console.log('🔄 Auth state change:', event, session);
+        
         if (event === 'SIGNED_IN' && session && typeof session === 'object' && 'user' in session) {
           const sessionUser = (session as { user: User }).user;
           const userData: User = {
@@ -57,22 +101,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             name: sessionUser.email?.split('@')[0] || 'User',
             emailConfirmed: sessionUser.emailConfirmed,
           };
+          console.log('✅ Setting user from auth state change:', userData);
           setUser(userData);
         } else if (event === 'SIGNED_OUT') {
+          console.log('🚪 User signed out');
           setUser(null);
           setRequiresEmailConfirmation(false);
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('🔄 Token refreshed, rechecking session...');
+          // Recheck session after token refresh
+          setTimeout(checkAndRestoreSession, 100);
         }
       }
     );
 
-    return () => subscription.unsubscribe();
+    // Enhanced page visibility and focus handling
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('👁️ Page became visible, rechecking session...');
+        // Add a small delay to ensure Supabase has time to refresh tokens
+        setTimeout(checkAndRestoreSession, 500);
+      }
+    };
+
+    const handleFocus = () => {
+      console.log('🎯 Window focused, rechecking session...');
+      // Add a small delay to ensure Supabase has time to refresh tokens
+      setTimeout(checkAndRestoreSession, 500);
+    };
+
+    // Listen for beforeunload to save session state
+    const handleBeforeUnload = () => {
+      console.log('📤 Page unloading, session should persist...');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
+
+  // Add a debug effect to log user state changes
+  useEffect(() => {
+    console.log('👤 User state changed:', user ? `Logged in as ${user.email}` : 'Not logged in');
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setRequiresEmailConfirmation(false);
     
     try {
+      console.log('🔐 Attempting login for:', email);
       const response = await authService.signIn(email, password);
       
       if (response.requiresEmailConfirmation) {
@@ -82,9 +167,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (response.error) throw new Error(response.error);
       
+      console.log('✅ Login successful, setting user:', response.user);
       setUser(response.user);
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -96,6 +182,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setRequiresEmailConfirmation(false);
     
     try {
+      console.log('📝 Attempting signup for:', email);
       const response = await authService.signUp(email, password);
       
       if (response.requiresEmailConfirmation) {
@@ -105,9 +192,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (response.error) throw new Error(response.error);
       
+      console.log('✅ Signup successful, setting user:', response.user);
       setUser(response.user);
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('❌ Signup error:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -117,14 +205,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     setIsLoading(true);
     try {
+      console.log('🚪 Attempting logout');
       const response = await authService.signOut();
       
       if (response.error) throw new Error(response.error);
       
+      console.log('✅ Logout successful');
       setUser(null);
       setRequiresEmailConfirmation(false);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('❌ Logout error:', error);
       // Even if there's an error, clear the local state
       setUser(null);
       setRequiresEmailConfirmation(false);
@@ -138,7 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.resendConfirmationEmail(email);
       if (response.error) throw new Error(response.error);
     } catch (error) {
-      console.error('Resend confirmation error:', error);
+      console.error('❌ Resend confirmation error:', error);
       throw error;
     }
   };
@@ -151,7 +241,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       logout, 
       resendConfirmationEmail,
       isLoading, 
-      requiresEmailConfirmation 
+      requiresEmailConfirmation,
+      isAuthenticated
     }}>
       {children}
     </AuthContext.Provider>

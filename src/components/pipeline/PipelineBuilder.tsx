@@ -127,7 +127,7 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
             </CardTitle>
             <div className="flex space-x-2">
               <div
-                className='flex justify-between items-center text-ai-secondary gap-1'
+                className='flex justify-between items-center text-ai-secondary gap-1 cursor-pointer hover:text-ai-primary hover:bg-ai-primary/10 px-2 py-1 rounded-md transition-all duration-200 ease-in-out'
                 onClick={() => setAddStepOpen(true)}
               >
                 <Plus className="w-4 h-4 mt-1" />
@@ -170,7 +170,7 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
                 Start building your AI pipeline by adding your first step
               </p>
               <div
-                className='text-ai-secondary flex justify-center items-center gap-1'
+                className='text-ai-secondary flex justify-center items-center gap-1 cursor-pointer hover:text-ai-primary hover:bg-ai-primary/10 px-4 py-2 rounded-md transition-all duration-200 ease-in-out'
                 onClick={() => setAddStepOpen(true)}
               >
                 <Plus className="w-4 h-4 mt-1" />

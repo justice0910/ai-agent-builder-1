@@ -247,7 +247,7 @@ export const Home: React.FC = () => {
               <span className="font-semibold">AI Agent Builder</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 AI Agent Builder. Built with love for the AI community.
+              © 2025 AI Agent Builder. Built with love for the VeriticalAI community.
             </p>
           </div>
         </div>

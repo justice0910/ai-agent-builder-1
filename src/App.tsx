@@ -3,21 +3,29 @@ import { AppLayout } from './routes/_app';
 import { IndexRoute } from './routes/index';
 import { AuthRoute } from './routes/auth';
 import { DashboardRoute } from './routes/dashboard';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { AuthGuard, GuestGuard } from './components/auth/AuthGuard';
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AppLayout />}>
-          <Route index element={<IndexRoute />} />
-          <Route path="auth" element={<AuthRoute />} />
+          <Route index element={
+            <GuestGuard>
+              <IndexRoute />
+            </GuestGuard>
+          } />
+          <Route path="auth" element={
+            <GuestGuard>
+              <AuthRoute />
+            </GuestGuard>
+          } />
           <Route
             path="dashboard"
             element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <DashboardRoute />
-              </ProtectedRoute>
+              </AuthGuard>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
