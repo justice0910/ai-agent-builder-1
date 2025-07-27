@@ -1,0 +1,291 @@
+import React, { useState, useEffect } from 'react';
+import { Header } from '../../components/layout/Header';
+import { PipelineBuilder } from '../../components/pipeline/PipelineBuilder';
+import { PipelineTestPanel } from '../../components/pipeline/PipelineTestPanel';
+import { PipelineList } from '../../components/pipeline/PipelineList';
+import { Button } from '@/components/ui/button';
+import { usePipelines } from '../hooks/usePipelines';
+import { useAuth } from '../contexts/AuthContext';
+import type { PipelineStep, Pipeline, PipelineExecution } from '../../types/pipeline';
+import { realAiService } from '../services/realAiService';
+import { toast } from 'sonner';
+
+export const Dashboard: React.FC = () => {
+  const { user } = useAuth();
+  const {
+    pipelines,
+    isLoadingPipelines,
+    createPipeline,
+    updatePipeline,
+    deletePipeline,
+    isCreatingPipeline,
+    isUpdatingPipeline,
+    error,
+    clearError,
+  } = usePipelines();
+
+  const [currentPipeline, setCurrentPipeline] = useState<Pipeline>({
+    id: 'default',
+    name: 'My AI Pipeline',
+    description: 'Custom AI processing workflow powered by Groq',
+    steps: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+
+  const [isNewPipeline, setIsNewPipeline] = useState(true);
+  const [pipelineName, setPipelineName] = useState('My AI Pipeline');
+  const [pipelineDescription, setPipelineDescription] = useState('Custom AI processing workflow powered by Groq');
+  const [showPipelineList, setShowPipelineList] = useState(true);
+
+  // Clear errors when component mounts
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      clearError();
+    }
+  }, [error, clearError]);
+
+  const handleStepsChange = (steps: PipelineStep[]) => {
+    setCurrentPipeline((prev: Pipeline) => ({
+      ...prev,
+      steps,
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  const handleRunPipeline = async (input: string): Promise<PipelineExecution> => {
+    if (currentPipeline.steps.length === 0) {
+      throw new Error('No steps in pipeline');
+    }
+
+    console.log('🚀 Running pipeline with real AI service');
+    return realAiService.executePipeline(currentPipeline.steps, input);
+  };
+
+  const handleSavePipeline = async () => {
+    if (!user?.id) {
+      toast.error('Please log in to save pipelines');
+      return;
+    }
+
+    if (currentPipeline.steps.length === 0) {
+      toast.error('Please add at least one step to your pipeline');
+      return;
+    }
+
+    if (!pipelineName.trim()) {
+      toast.error('Please enter a pipeline name');
+      return;
+    }
+
+    try {
+      if (isNewPipeline) {
+        // Create new pipeline
+        await createPipeline({
+          name: pipelineName.trim(),
+          description: pipelineDescription.trim(),
+          steps: currentPipeline.steps.map((step: PipelineStep, index: number) => ({
+            type: step.type,
+            config: step.config,
+            order: index + 1,
+          })),
+        });
+        toast.success('Pipeline created successfully!');
+        setIsNewPipeline(false);
+      } else {
+        // Update existing pipeline
+        await updatePipeline({
+          id: currentPipeline.id,
+          data: {
+            name: pipelineName.trim(),
+            description: pipelineDescription.trim(),
+            steps: currentPipeline.steps.map((step: PipelineStep, index: number) => ({
+              type: step.type,
+              config: step.config,
+              order: index + 1,
+            })),
+          },
+        });
+        toast.success('Pipeline updated successfully!');
+      }
+    } catch (error) {
+      console.error('Failed to save pipeline:', error);
+      toast.error('Failed to save pipeline. Please try again.');
+    }
+  };
+
+  const handleRunFromBuilder = async () => {
+    // This is called from the builder when user clicks "Run Pipeline"
+    // For now, we'll just show a message that they should use the test panel
+    toast.info('Use the Test Panel below to run your pipeline with custom input');
+  };
+
+  const handleSelectPipeline = (pipeline: any) => {
+    // Convert backend pipeline to frontend pipeline format
+    const frontendPipeline: Pipeline = {
+      id: pipeline.id,
+      name: pipeline.name,
+      description: pipeline.description || '',
+      steps: pipeline.steps.map((step: any) => ({
+        id: step.id,
+        type: step.type as any,
+        config: step.config,
+        order: step.order,
+      })),
+      createdAt: pipeline.createdAt,
+      updatedAt: pipeline.updatedAt,
+    };
+    
+    setCurrentPipeline(frontendPipeline);
+    setPipelineName(pipeline.name);
+    setPipelineDescription(pipeline.description || '');
+    setIsNewPipeline(false);
+    setShowPipelineList(false);
+    toast.success(`Loaded pipeline: ${pipeline.name}`);
+  };
+
+  const handleDeletePipeline = async (pipelineId: string) => {
+    try {
+      await deletePipeline(pipelineId);
+      toast.success('Pipeline deleted successfully');
+      
+      // If we're currently editing the deleted pipeline, reset to new pipeline
+      if (currentPipeline.id === pipelineId) {
+        setCurrentPipeline({
+          id: 'default',
+          name: 'My AI Pipeline',
+          description: 'Custom AI processing workflow powered by Groq',
+          steps: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+        setPipelineName('My AI Pipeline');
+        setPipelineDescription('Custom AI processing workflow powered by Groq');
+        setIsNewPipeline(true);
+      }
+    } catch (error) {
+      console.error('Failed to delete pipeline:', error);
+      toast.error('Failed to delete pipeline. Please try again.');
+    }
+  };
+
+  const handleCreateNew = () => {
+    setCurrentPipeline({
+      id: 'default',
+      name: 'My AI Pipeline',
+      description: 'Custom AI processing workflow powered by Groq',
+      steps: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    setPipelineName('My AI Pipeline');
+    setPipelineDescription('Custom AI processing workflow powered by Groq');
+    setIsNewPipeline(true);
+    setShowPipelineList(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/20">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8 text-ai-secondary">
+        {showPipelineList ? (
+          <div className="max-w-4xl mx-auto">
+            <PipelineList
+              pipelines={pipelines}
+              isLoading={isLoadingPipelines}
+              onSelectPipeline={handleSelectPipeline}
+              onDeletePipeline={handleDeletePipeline}
+              onCreateNew={handleCreateNew}
+            />
+          </div>
+        ) : (
+          <>
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowPipelineList(true)}
+                  className="mb-4"
+                >
+                  ← Back to Pipelines
+                </Button>
+                <button
+                  onClick={handleSavePipeline}
+                  disabled={!user?.id || currentPipeline.steps.length === 0}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isCreatingPipeline || isUpdatingPipeline ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      </svg>
+                      Save Pipeline
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label htmlFor="pipeline-name" className="block text-sm font-medium mb-2">
+                    Pipeline Name
+                  </label>
+                  <input
+                    id="pipeline-name"
+                    type="text"
+                    value={pipelineName}
+                    onChange={(e) => setPipelineName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                    placeholder="Enter pipeline name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="pipeline-description" className="block text-sm font-medium mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    id="pipeline-description"
+                    value={pipelineDescription}
+                    onChange={(e) => setPipelineDescription(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                    placeholder="Describe your pipeline"
+                    rows={2}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">Pipeline Builder</h2>
+                </div>
+                <PipelineBuilder
+                  steps={currentPipeline.steps}
+                  onStepsChange={handleStepsChange}
+                  onRunPipeline={handleRunFromBuilder}
+                  onSavePipeline={handleSavePipeline}
+                />
+              </div>
+
+              <div className="space-y-6">
+                <PipelineTestPanel
+                  steps={currentPipeline.steps}
+                  onRunPipeline={handleRunPipeline}
+                />
+              </div>
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default Dashboard

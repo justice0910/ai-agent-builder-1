@@ -1,98 +1,179 @@
 # AI Agent Builder
 
-Create powerful AI workflows in minutes with our intuitive drag-and-drop interface.
+A modern AI pipeline builder with a clean backend-frontend separation architecture.
 
-## Features
+## 🏗️ Architecture
 
-- 🔧 **Visual Pipeline Builder**: Drag and drop AI components
-- 🤖 **AI Integration**: Connect to various AI services
-- 📊 **Real-time Testing**: Test your pipelines instantly
-- 🔒 **Secure Authentication**: Supabase-powered user management and session handling
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-- Supabase account and project
-
-### Installation
-
-1. Clone the repository
-```bash
-git clone <repository-url>
-cd ai-agent-builder-1
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend API   │    │   Supabase      │
+│   (React)       │◄──►│   (Express)     │◄──►│   (PostgreSQL)  │
+│                 │    │                 │    │                 │
+│ ✅ Pure Client   │    │ ✅ Drizzle ORM  │    │ ✅ Database     │
+│ ✅ No Buffer     │    │ ✅ REST API     │    │ ✅ Auth API     │
+│ ✅ Clean Code    │    │ ✅ Type Safe    │    │ ✅ Hosted       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-2. Install dependencies
+## 📁 Project Structure
+
+```
+ai-agent-builder/
+├── frontend/                 # React + Vite frontend
+│   ├── src/
+│   │   ├── components/      # UI components
+│   │   ├── pages/          # Page components
+│   │   ├── services/       # API services
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── contexts/       # React contexts
+│   │   ├── types/          # TypeScript types
+│   │   └── lib/            # Utilities and configs
+│   ├── package.json
+│   └── README.md
+├── backend/                 # Express + Drizzle backend
+│   ├── src/
+│   │   ├── routes/         # API routes
+│   │   ├── services/       # Business logic
+│   │   ├── middleware/     # Express middleware
+│   │   ├── types/          # TypeScript types
+│   │   └── db/             # Database schema
+│   ├── package.json
+│   └── README.md
+└── shared/                  # Shared types and utilities
+    ├── types/
+    └── constants/
+```
+
+## 🚀 Quick Start
+
+### 1. Backend Setup
+
 ```bash
+cd backend
 npm install
-```
-
-3. Set up Supabase environment variables
-Create a `.env` file in the root directory with your Supabase credentials:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-**To get these values:**
-1. Go to [Supabase](https://supabase.com)
-2. Create a new project or select existing one
-3. Go to Settings > API
-4. Copy the Project URL and anon/public key
-
-### Development
-
-```bash
+cp .env.example .env
+# Edit .env with your Supabase credentials
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
-
-## Authentication
-
-The app uses **Supabase Authentication** for secure user management:
-
-- **Email/password signup and login**
-- **Email confirmation** for new accounts
-- **Session persistence** across page navigations and browser tabs
-- **Secure token management** with automatic refresh
-- **PKCE flow** for enhanced security
-
-## Troubleshooting
-
-### Login Persistence Issues
-
-If you're experiencing login persistence issues (being logged out when navigating between pages or returning from external sites), check:
-
-1. **Environment Variables**: Ensure your `.env` file has valid Supabase credentials
-2. **Browser Console**: Check for authentication-related errors
-3. **Network Tab**: Verify Supabase API calls are successful
-4. **Session Storage**: Check if Supabase tokens are being stored in localStorage
-
-### Common Issues
-
-- **"User not found" errors**: Check if Supabase is properly configured
-- **Session not persisting**: Verify environment variables are set correctly
-- **Email confirmation**: Ensure users confirm their email before signing in
-
-### Debugging
-
-The app includes comprehensive logging for authentication events. Open browser console to see:
-- Session restoration attempts
-- Authentication state changes
-- Page visibility events (when returning from external sites)
-- Token refresh operations
-
-## Build
+### 2. Frontend Setup
 
 ```bash
-npm run build
+cd frontend
+npm install
+cp .env.example .env
+# Edit .env with your Supabase credentials
+npm run dev
 ```
 
-## License
+### 3. Database Setup
 
-MIT
+```bash
+cd backend
+npm run db:generate
+npm run db:push
+```
+
+## 🔧 Technology Stack
+
+### Frontend
+- **React 18** - UI library
+- **Vite** - Build tool
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **React Query** - Data fetching
+- **React Router** - Navigation
+- **Supabase Auth** - Authentication
+
+### Backend
+- **Express.js** - Web framework
+- **Drizzle ORM** - Database operations
+- **PostgreSQL** - Database (via Supabase)
+- **TypeScript** - Type safety
+- **CORS** - Cross-origin support
+
+### Database
+- **Supabase** - PostgreSQL hosting
+- **Drizzle Kit** - Schema management
+- **Row Level Security** - Data protection
+
+## 📡 API Endpoints
+
+### Authentication (Supabase)
+- User registration and login
+- Session management
+- Password reset
+
+### Pipelines (Backend API)
+- `POST /api/pipelines` - Create pipeline
+- `GET /api/pipelines` - Get user pipelines
+- `GET /api/pipelines/:id` - Get specific pipeline
+- `PUT /api/pipelines/:id` - Update pipeline
+- `DELETE /api/pipelines/:id` - Delete pipeline
+
+## 🔐 Security
+
+- **CORS** - Configured for frontend-backend communication
+- **Authentication** - Supabase Auth with JWT tokens
+- **Authorization** - User-specific data access
+- **Input Validation** - Request validation on both ends
+
+## 🧪 Development
+
+### Backend Development
+```bash
+cd backend
+npm run dev          # Start development server
+npm run db:generate  # Generate schema types
+npm run db:push      # Push schema to database
+npm run test         # Run tests
+```
+
+### Frontend Development
+```bash
+cd frontend
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run linter
+```
+
+## 🚀 Deployment
+
+### Backend Deployment
+- Deploy to Vercel, Railway, or any Node.js hosting
+- Set environment variables
+- Configure CORS for frontend domain
+
+### Frontend Deployment
+- Deploy to Vercel, Netlify, or any static hosting
+- Set environment variables
+- Configure API base URL
+
+## 📝 Environment Variables
+
+### Backend (.env)
+```env
+DATABASE_URL=your_supabase_connection_string
+PORT=3001
+NODE_ENV=development
+```
+
+### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:3001/api
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
