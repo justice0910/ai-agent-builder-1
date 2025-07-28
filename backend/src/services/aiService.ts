@@ -204,4 +204,78 @@ Please provide only the extracted information without any additional explanation
       throw new Error(`Extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+
+  async generatePipelineSteps(instruction: string): Promise<PipelineStep[]> {
+    const prompt = `You are an AI pipeline builder. Based on the user's instruction, create a sequence of pipeline steps that will accomplish their goal.
+
+Available step types:
+1. summarize - Condense text into a concise summary
+2. translate - Convert text to another language  
+3. rewrite - Adjust tone and style of text
+4. extract - Extract key information from text
+
+User instruction: "${instruction}"
+
+Please respond with a JSON array of pipeline steps. Each step should have:
+- id: unique identifier (e.g., "step1", "step2")
+- type: one of the available step types
+- config: configuration object with appropriate parameters
+
+Example response format:
+[
+  {
+    "id": "step1",
+    "type": "rewrite",
+    "config": {
+      "style": "professional"
+    }
+  },
+  {
+    "id": "step2", 
+    "type": "translate",
+    "config": {
+      "targetLanguage": "Italian"
+    }
+  }
+]
+
+Respond with only the JSON array, no additional text.`;
+
+    try {
+      const { text } = await generateText({
+        model: groq('gemma2-9b-it'),
+        prompt,
+      });
+
+      if (!text || text.trim() === '') {
+        throw new Error('AI service returned empty response. Please check your API key and try again.');
+      }
+
+      // Parse the JSON response
+      const steps = JSON.parse(text.trim());
+      
+      // Validate the steps
+      if (!Array.isArray(steps)) {
+        throw new Error('AI service returned invalid response format');
+      }
+
+      for (const step of steps) {
+        if (!step.id || !step.type || !step.config) {
+          throw new Error('Invalid step format in AI response');
+        }
+        
+        if (!['summarize', 'translate', 'rewrite', 'extract'].includes(step.type)) {
+          throw new Error(`Invalid step type: ${step.type}`);
+        }
+      }
+
+      return steps;
+
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new Error('AI service returned invalid JSON. Please try again.');
+      }
+      throw new Error(`Pipeline step generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 } 
