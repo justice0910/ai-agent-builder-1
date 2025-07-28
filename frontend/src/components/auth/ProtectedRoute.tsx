@@ -20,9 +20,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // Only allow access if user is authenticated
+  // Only allow access if user is authenticated and email is confirmed
   if (!isAuthenticated || !user) {
     return <Navigate to="/auth" />;
+  }
+
+  // Check if email is confirmed
+  if (!user.emailConfirmed) {
+    return <Navigate to="/auth?emailConfirmation=true" />;
   }
 
   return <>{children}</>;

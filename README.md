@@ -1,169 +1,224 @@
-# AI Agent Builder
+# AI Agent Builder - Real AI Pipeline System
 
-A modern AI pipeline builder with a clean backend-frontend separation architecture.
+A powerful AI pipeline builder that allows you to create, configure, and execute custom AI processing workflows using real AI services.
 
-## 🏗️ Architecture
+## 🚀 Features
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend API   │    │   Supabase      │
-│   (React)       │◄──►│   (Express)     │◄──►│   (PostgreSQL)  │
-│                 │    │                 │    │                 │
-│ ✅ Pure Client   │    │ ✅ Drizzle ORM  │    │ ✅ Database     │
-│ ✅ No Buffer     │    │ ✅ REST API     │    │ ✅ Auth API     │
-│ ✅ Clean Code    │    │ ✅ Type Safe    │    │ ✅ Hosted       │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+### Real AI Integration
+- **Groq AI Integration**: Uses Groq's Llama 3.1 model for real AI processing
+- **Multiple AI Operations**: Summarize, translate, rewrite, and extract information
+- **Configurable Steps**: Customize each step with specific parameters
+- **Pipeline Execution**: Execute multi-step AI workflows with real-time processing
 
-## 📁 Project Structure
+### Pipeline Management
+- **Visual Pipeline Builder**: Drag-and-drop interface for building AI workflows
+- **Step Configuration**: Configure each step with specific parameters
+- **Pipeline Testing**: Test pipelines with custom input text
+- **Execution History**: Track and review pipeline executions
+- **Real-time Results**: See step-by-step AI processing results
 
-```
-ai-agent-builder/
-├── frontend/                 # React + Vite frontend
-│   ├── src/
-│   │   ├── components/      # UI components
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API services
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── contexts/       # React contexts
-│   │   ├── types/          # TypeScript types
-│   │   └── lib/            # Utilities and configs
-│   ├── package.json
-│   └── README.md
-├── backend/                 # Express + Drizzle backend
-│   ├── src/
-│   │   ├── routes/         # API routes
-│   │   ├── services/       # Business logic
-│   │   ├── middleware/     # Express middleware
-│   │   ├── types/          # TypeScript types
-│   │   └── db/             # Database schema
-│   ├── package.json
-│   └── README.md
-└── shared/                  # Shared types and utilities
-    ├── types/
-    └── constants/
-```
+### Supported AI Operations
+
+#### 📝 Summarize
+- **Length Options**: Short (1-2 sentences), Medium (3-4 sentences), Long (5-6 sentences)
+- **Format Options**: Paragraph, Bullet points, Numbered outline
+
+#### 🌐 Translate
+- **Target Languages**: Spanish, French, German, Chinese, Japanese, and more
+- **Context Preservation**: Maintains original meaning and context
+
+#### ✏️ Rewrite
+- **Tone Options**: Casual, Formal, Professional, Friendly, Academic
+- **Style Options**: Concise, Detailed, Persuasive, Informative
+
+#### 🔍 Extract
+- **Keywords**: Extract important terms and phrases
+- **Entities**: Identify people, organizations, locations, dates
+- **Topics**: Identify main themes and subjects
+- **Sentiment**: Analyze emotional tone and confidence
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18** with TypeScript
+- **Vite** for fast development
+- **Tailwind CSS** for styling
+- **Shadcn/ui** components
+- **DND Kit** for drag-and-drop
+- **Sonner** for toast notifications
+
+### Backend
+- **Node.js** with Express
+- **TypeScript** for type safety
+- **Drizzle ORM** for database management
+- **PostgreSQL** for data persistence
+- **Groq AI SDK** for AI processing
+
+### Database Schema
+- **Users**: User management and authentication
+- **Pipelines**: Pipeline definitions and metadata
+- **Pipeline Steps**: Individual AI processing steps
+- **Pipeline Executions**: Execution tracking and history
+- **Execution Outputs**: Step-by-step results storage
 
 ## 🚀 Quick Start
 
-### 1. Backend Setup
+### Prerequisites
+- Node.js 18+ 
+- PostgreSQL database
+- Groq API key
 
+### 1. Clone and Install
 ```bash
-cd backend
+git clone <repository-url>
+cd ai-agent-builder-1
 npm install
-cp .env.example .env
-# Edit .env with your Supabase credentials
-npm run dev
 ```
 
-### 2. Frontend Setup
+### 2. Environment Setup
 
-```bash
-cd frontend
-npm install
-cp .env.example .env
-# Edit .env with your Supabase credentials
-npm run dev
+#### Backend (.env)
+```env
+DATABASE_URL=postgresql://username:password@localhost:5432/ai_agent_builder
+GROQ_API_KEY=your_groq_api_key_here
+PORT=3002
+NODE_ENV=development
+```
+
+#### Frontend (.env)
+```env
+GROQ_API_KEY=your_groq_api_key_here
+VITE_API_BASE_URL=http://localhost:3002/api
 ```
 
 ### 3. Database Setup
-
 ```bash
 cd backend
 npm run db:generate
 npm run db:push
 ```
 
-## 🔧 Technology Stack
+### 4. Start Development Servers
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
 
-### Frontend
-- **React 18** - UI library
-- **Vite** - Build tool
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **React Query** - Data fetching
-- **React Router** - Navigation
-- **Supabase Auth** - Authentication
+# Terminal 2 - Frontend  
+cd frontend
+npm run dev
+```
 
-### Backend
-- **Express.js** - Web framework
-- **Drizzle ORM** - Database operations
-- **PostgreSQL** - Database (via Supabase)
-- **TypeScript** - Type safety
-- **CORS** - Cross-origin support
+### 5. Access the Application
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3002/api
 
-### Database
-- **Supabase** - PostgreSQL hosting
-- **Drizzle Kit** - Schema management
-- **Row Level Security** - Data protection
+## 📖 Usage Guide
 
-## 📡 API Endpoints
+### Creating Your First Pipeline
 
-### Authentication (Supabase)
-- User registration and login
-- Session management
-- Password reset
+1. **Access the Dashboard**
+   - Navigate to the dashboard after authentication
+   - Click "Create New Pipeline"
 
-### Pipelines (Backend API)
+2. **Add Pipeline Steps**
+   - Click "Add Step" to add AI operations
+   - Choose from: Summarize, Translate, Rewrite, Extract
+   - Configure each step with specific parameters
+   - Drag and drop to reorder steps
+
+3. **Configure Step Parameters**
+   - **Summarize**: Set length and format preferences
+   - **Translate**: Choose target language
+   - **Rewrite**: Select tone and style
+   - **Extract**: Choose extraction type
+
+4. **Test Your Pipeline**
+   - Use the Test Panel to input custom text
+   - Click "Run Pipeline" to execute
+   - View real-time step-by-step results
+   - Copy individual step outputs
+
+5. **Save Your Pipeline**
+   - Click "Save Pipeline" to persist your workflow
+   - Access saved pipelines from the pipeline list
+   - Edit and update existing pipelines
+
+### Example Pipeline Workflows
+
+#### Content Summarization Pipeline
+1. **Extract Keywords** → Identify main topics
+2. **Summarize** → Create concise summary
+3. **Translate** → Convert to target language
+
+#### Content Enhancement Pipeline  
+1. **Rewrite** → Improve tone and style
+2. **Extract Entities** → Identify key information
+3. **Summarize** → Create executive summary
+
+## 🔧 API Endpoints
+
+### Pipeline Management
 - `POST /api/pipelines` - Create pipeline
 - `GET /api/pipelines` - Get user pipelines
 - `GET /api/pipelines/:id` - Get specific pipeline
 - `PUT /api/pipelines/:id` - Update pipeline
 - `DELETE /api/pipelines/:id` - Delete pipeline
 
-## 🔐 Security
+### Pipeline Execution
+- `POST /api/pipelines/execute` - Execute pipeline
+- `GET /api/pipelines/executions` - Get execution history
+- `GET /api/pipelines/executions/:id` - Get execution details
 
-- **CORS** - Configured for frontend-backend communication
-- **Authentication** - Supabase Auth with JWT tokens
-- **Authorization** - User-specific data access
-- **Input Validation** - Request validation on both ends
+## 🎯 Real AI Processing
 
-## 🧪 Development
+The system uses **Groq's Llama 3.1 model** for all AI operations:
 
-### Backend Development
-```bash
-cd backend
-npm run dev          # Start development server
-npm run db:generate  # Generate schema types
-npm run db:push      # Push schema to database
-npm run test         # Run tests
-```
+- **Fast Processing**: Groq's optimized inference
+- **High Quality**: State-of-the-art language model
+- **Reliable**: Production-ready AI service
+- **Scalable**: Handles multiple concurrent requests
 
-### Frontend Development
-```bash
-cd frontend
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run linter
-```
+### AI Processing Flow
+1. **Input Validation** → Check text quality and length
+2. **Prompt Engineering** → Create optimized prompts for each operation
+3. **AI Processing** → Execute with Groq's API
+4. **Result Processing** → Clean and format outputs
+5. **Step Chaining** → Pass results to next step
+6. **Execution Tracking** → Log performance and results
+
+## 🔒 Security & Performance
+
+### Security Features
+- **API Key Management**: Secure environment variable handling
+- **User Isolation**: Pipeline access control
+- **Input Validation**: Sanitize and validate user inputs
+- **Error Handling**: Graceful failure management
+
+### Performance Optimizations
+- **Connection Pooling**: Efficient database connections
+- **Caching**: Reduce redundant AI calls
+- **Async Processing**: Non-blocking pipeline execution
+- **Progress Tracking**: Real-time execution status
 
 ## 🚀 Deployment
 
-### Backend Deployment
-- Deploy to Vercel, Railway, or any Node.js hosting
-- Set environment variables
-- Configure CORS for frontend domain
+### Production Setup
+1. **Environment Variables**: Configure production credentials
+2. **Database Migration**: Run schema migrations
+3. **Build Frontend**: `npm run build` in frontend directory
+4. **Start Services**: Use PM2 or similar process manager
 
-### Frontend Deployment
-- Deploy to Vercel, Netlify, or any static hosting
-- Set environment variables
-- Configure API base URL
-
-## 📝 Environment Variables
-
-### Backend (.env)
-```env
-DATABASE_URL=your_supabase_connection_string
-PORT=3001
-NODE_ENV=development
-```
-
-### Frontend (.env)
-```env
-VITE_API_URL=http://localhost:3001/api
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+### Docker Deployment
+```dockerfile
+# Backend Dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 3002
+CMD ["npm", "start"]
 ```
 
 ## 🤝 Contributing
@@ -176,4 +231,15 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For issues and questions:
+- Check the documentation
+- Review existing issues
+- Create a new issue with detailed information
+
+---
+
+**Built with ❤️ using React, Node.js, and Groq AI**

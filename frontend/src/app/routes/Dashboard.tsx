@@ -204,17 +204,19 @@ export const Dashboard: React.FC = () => {
           <>
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
-                <Button
-                  variant="outline"
+                <button
                   onClick={() => setShowPipelineList(true)}
-                  className="mb-4"
+                  className="mb-4 px-4 py-2 border border-ai-primary/30 text-ai-primary rounded-lg hover:bg-ai-primary/10 hover:border-ai-primary/50 transition-all duration-200 flex items-center gap-2 backdrop-blur-sm"
                 >
-                  ← Back to Pipelines
-                </Button>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back to Pipelines
+                </button>
                 <button
                   onClick={handleSavePipeline}
                   disabled={!user?.id || currentPipeline.steps.length === 0}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-ai-primary to-ai-secondary text-white rounded-md hover:from-ai-primary/90 hover:to-ai-secondary/90 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   {isCreatingPipeline || isUpdatingPipeline ? (
                     <>
@@ -231,9 +233,9 @@ export const Dashboard: React.FC = () => {
                   )}
                 </button>
               </div>
-              <div className="flex flex-col gap-4">
-                <div>
-                  <label htmlFor="pipeline-name" className="block text-sm font-medium mb-2">
+              <div className="flex flex-col gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="pipeline-name" className="block text-sm font-semibold text-ai-secondary">
                     Pipeline Name
                   </label>
                   <input
@@ -241,21 +243,21 @@ export const Dashboard: React.FC = () => {
                     type="text"
                     value={pipelineName}
                     onChange={(e) => setPipelineName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full px-4 py-3 border border-ai-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai-primary/50 focus:border-ai-primary bg-card/80 backdrop-blur-sm text-white placeholder-white/50 transition-all duration-200 shadow-sm"
                     placeholder="Enter pipeline name"
                   />
                 </div>
-                <div>
-                  <label htmlFor="pipeline-description" className="block text-sm font-medium mb-2">
+                <div className="space-y-2">
+                  <label htmlFor="pipeline-description" className="block text-sm font-semibold text-ai-secondary">
                     Description
                   </label>
                   <textarea
                     id="pipeline-description"
                     value={pipelineDescription}
                     onChange={(e) => setPipelineDescription(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full px-4 py-3 border border-ai-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai-primary/50 focus:border-ai-primary bg-card/80 backdrop-blur-sm text-white placeholder-white/50 transition-all duration-200 resize-none shadow-sm"
                     placeholder="Describe your pipeline"
-                    rows={2}
+                    rows={3}
                   />
                 </div>
               </div>

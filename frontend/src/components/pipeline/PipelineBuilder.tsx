@@ -20,7 +20,7 @@ import { PipelineStep as PipelineStepComponent } from './PipelineStep';
 import { AddStepDialog } from './AddStepDialog';
 import { StepConfigDialog } from './StepConfigDialog';
 import type { PipelineStep, StepType, StepConfig } from '../../types/pipeline';
-import { Plus, Play, Save } from 'lucide-react';
+import { Plus, Save } from 'lucide-react';
 
 interface PipelineBuilderProps {
   steps: PipelineStep[];
@@ -33,9 +33,7 @@ interface PipelineBuilderProps {
 export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
   steps,
   onStepsChange,
-  onRunPipeline,
   onSavePipeline,
-  isRunning = false,
 }) => {
   const [addStepOpen, setAddStepOpen] = useState(false);
   const [configStep, setConfigStep] = useState<PipelineStep | null>(null);
@@ -116,8 +114,8 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
     <div className="space-y-6">
       <Card className="shadow-card border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2 text-ai-secondary">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 text-ai-secondary">
               <span>Pipeline Steps</span>
               {steps.length > 0 && (
                 <span className="text-sm font-normal text-ai-secondary">
@@ -125,36 +123,26 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
                 </span>
               )}
             </CardTitle>
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               <div
-                className='flex justify-between items-center text-ai-secondary gap-1 cursor-pointer hover:text-ai-primary hover:bg-ai-primary/10 px-2 py-1 rounded-md transition-all duration-200 ease-in-out'
+                className='flex items-center text-ai-secondary gap-1 cursor-pointer hover:text-ai-primary hover:bg-ai-primary/10 px-3 py-2 rounded-md transition-all duration-200 ease-in-out'
                 onClick={() => setAddStepOpen(true)}
               >
-                <Plus className="w-4 h-4 mt-1" />
-                <p>
+                <Plus className="w-4 h-4" />
+                <span className="text-sm">
                   Add Step
-                </p>
+                </span>
               </div>
               {steps.length > 0 && (
-                <>
-                  <Button
-                    variant="ai"
-                    size="sm"
-                    onClick={onRunPipeline}
-                    disabled={isRunning}
-                  >
-                    <Play className="w-4 h-4" />
-                    {isRunning ? 'Running...' : 'Run Pipeline'}
-                  </Button>
-                  <Button
-                    variant="accent"
-                    size="sm"
-                    onClick={onSavePipeline}
-                  >
-                    <Save className="w-4 h-4" />
-                    Save
-                  </Button>
-                </>
+                <Button
+                  variant="accent"
+                  size="sm"
+                  onClick={onSavePipeline}
+                  className="px-3 py-2"
+                >
+                  <Save className="w-4 h-4" />
+                  <span className="text-sm">Save</span>
+                </Button>
               )}
             </div>
           </div>
@@ -180,6 +168,7 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
               </div>
             </div>
           ) : (
+            // @ts-ignore
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

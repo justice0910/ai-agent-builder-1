@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('✅ Restoring user session:', currentUser.email);
         setUser(currentUser);
       } else {
-        console.log('ℹ️ No active session found');
+        console.log('ℹ️ No active session found or user email not confirmed');
         setUser(null);
       }
       } catch (error) {
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       } finally {
         setIsLoading(false);
-        setIsAuthenticated(!!user); // Set based on whether user exists
+        // Don't set isAuthenticated here - let the useEffect handle it
       }
     };
 
@@ -95,12 +95,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔄 Auth state change:', event, session);
         
         if (event === 'SIGNED_IN' && session && typeof session === 'object' && 'user' in session) {
-          const sessionUser = (session as { user: User }).user;
+          const sessionUser = (session as { user: any }).user;
+          
+          // Check if email is confirmed before setting user
+          const emailConfirmed = sessionUser.email_confirmed_at !== null;
+          
+          if (!emailConfirmed) {
+            console.log('⚠️ User signed in but email not confirmed, not setting user');
+            setUser(null);
+            return;
+          }
+          
           const userData: User = {
             id: sessionUser.id,
             email: sessionUser.email || '',
             name: sessionUser.email?.split('@')[0] || 'User',
-            emailConfirmed: sessionUser.emailConfirmed,
+            emailConfirmed,
           };
           console.log('✅ Setting user from auth state change:', userData);
           setUser(userData);
@@ -151,7 +161,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Add a debug effect to log user state changes and update isAuthenticated
   useEffect(() => {
     console.log('👤 User state changed:', user ? `Logged in as ${user.email}` : 'Not logged in');
-    setIsAuthenticated(!!user);
+    console.log('🔍 Email confirmed:', user?.emailConfirmed);
+    // Only set isAuthenticated to true if user exists and email is confirmed
+    const shouldBeAuthenticated = !!user && !!user.emailConfirmed;
+    console.log('🔐 Setting isAuthenticated to:', shouldBeAuthenticated);
+    setIsAuthenticated(shouldBeAuthenticated);
   }, [user]);
 
   const login = async (email: string, password: string) => {
@@ -164,6 +178,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (response.requiresEmailConfirmation) {
         setRequiresEmailConfirmation(true);
+        setUser(null); // Ensure user is not set when email confirmation is required
         throw new Error(response.error || 'Email confirmation required');
       }
       
@@ -173,6 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
     } catch (error) {
       console.error('❌ Login error:', error);
+      setUser(null); // Ensure user is not set on error
       throw error;
     } finally {
       setIsLoading(false);
@@ -189,6 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (response.requiresEmailConfirmation) {
         setRequiresEmailConfirmation(true);
+        setUser(null); // Ensure user is not set when email confirmation is required
         throw new Error(response.error || 'Email confirmation required');
       }
       
@@ -198,6 +215,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
     } catch (error) {
       console.error('❌ Signup error:', error);
+      setUser(null); // Ensure user is not set on error
       throw error;
     } finally {
       setIsLoading(false);

@@ -6,6 +6,9 @@ const router = express.Router();
 // Create a new user
 router.post('/', UserController.create);
 
+// Create confirmed user (after email confirmation)
+router.post('/confirmed', UserController.createConfirmedUser);
+
 // Get user by ID
 router.get('/:id', UserController.getById);
 

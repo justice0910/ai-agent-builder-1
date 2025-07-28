@@ -27,7 +27,10 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "@radix-ui/react-aspect-ratio": "^1.1.7",
     "drizzle-kit": "^0.12.8",
+    "input-otp": "^1.4.2",
+    "vaul": "^1.1.2",
     "vite": "7.0.6"
   }
 }

@@ -3,11 +3,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import pipelineRoutes from './app/routes/pipelines.js';
 import userRoutes from './app/routes/users.js';
+import aiRoutes from './app/routes/ai.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
@@ -21,6 +22,7 @@ app.get('/api/health', (req: express.Request, res: express.Response) => {
 // API Routes
 app.use('/api/pipelines', pipelineRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Start server
 app.listen(PORT, () => {

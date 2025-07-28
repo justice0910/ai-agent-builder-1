@@ -21,11 +21,6 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
   const [isRunning, setIsRunning] = useState(false);
 
   const handleRun = async () => {
-    if (!input.trim()) {
-      toast.error('Please enter some input text');
-      return;
-    }
-
     if (steps.length === 0) {
       toast.error('Please add at least one step to the pipeline');
       return;
@@ -37,7 +32,13 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
     try {
       const result = await onRunPipeline(input);
       setExecution(result);
-      toast.success('Pipeline executed successfully!');
+      
+      // Check the execution status
+      if (result.status === 'completed') {
+        toast.success('Pipeline executed successfully!');
+      } else if (result.status === 'failed') {
+        toast.error('Pipeline execution failed');
+      }
     } catch (error) {
       console.error('Pipeline execution failed:', error);
       setExecution(null); // Clear results on failure
@@ -67,7 +68,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={6}
-            className="resize-none text-white"
+            className="resize-none text-white bg-card/80 border-ai-primary/30 focus:border-ai-primary focus:ring-ai-primary/50 placeholder-white/50"
           />
           <div className="flex justify-between items-center">
             <div className="text-sm text-ai-secondary">
@@ -86,7 +87,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
       </Card>
 
       {execution && execution.status === 'completed' && (
-        <Card className="shadow-card border-border/50 bg-card/50 backdrop-blur-sm">
+        <Card className="shadow-card border-border/50 bg-card/50 backdrop-blur-sm text-ai-secondary">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Pipeline Results</CardTitle>
@@ -135,7 +136,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
                     </div>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg border border-border/30">
-                    <p className="text-sm whitespace-pre-wrap">{output.output}</p>
+                    <p className="text-sm text-white whitespace-pre-wrap">{output.output}</p>
                   </div>
                 </div>
               );

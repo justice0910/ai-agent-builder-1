@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -35,9 +35,15 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   }
 
   // If user is authenticated, show the intended content
-  if (user) {
-    console.log('✅ AuthGuard - User authenticated, showing content');
+  if (user && user.emailConfirmed) {
+    console.log('✅ AuthGuard - User authenticated and email confirmed, showing content');
     return <>{children}</>;
+  }
+
+  // If user is authenticated but email not confirmed, redirect to auth
+  if (user && !user.emailConfirmed) {
+    console.log('⚠️ AuthGuard - User authenticated but email not confirmed, redirecting to auth');
+    return <Navigate to="/auth?emailConfirmation=true" replace />;
   }
 
   // If user is not authenticated, redirect to auth page
@@ -63,9 +69,15 @@ export const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }
   }
 
   // If user is authenticated, redirect to dashboard
-  if (user) {
-    console.log('🔀 GuestGuard - User authenticated, redirecting to dashboard');
+  if (user && user.emailConfirmed) {
+    console.log('🔀 GuestGuard - User authenticated and email confirmed, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
+  }
+
+  // If user is authenticated but email not confirmed, show guest content
+  if (user && !user.emailConfirmed) {
+    console.log('⚠️ GuestGuard - User authenticated but email not confirmed, showing guest content');
+    return <>{children}</>;
   }
 
   // If user is not authenticated, show the guest content

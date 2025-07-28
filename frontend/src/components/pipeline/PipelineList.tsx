@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Edit, Trash2, Plus } from 'lucide-react';
-import type { Pipeline } from '../../types/pipeline';
 
 // Type for pipelines from backend
 interface PipelineWithSteps {

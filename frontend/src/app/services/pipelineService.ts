@@ -49,7 +49,7 @@ interface PipelineExecutionWithOutputs extends PipelineExecution {
 
 
 
-const API_BASE_URL = 'http://localhost:3002/api';
+const API_BASE_URL = `http://localhost:${import.meta.env.VITE_PORT || 3001}/api`;
 
 export class PipelineService {
   /**
@@ -174,8 +174,12 @@ export class PipelineService {
    */
   async deletePipeline(id: string, userId: string): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL}/pipelines/${id}?userId=${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/pipelines/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
       });
 
       if (response.status === 404) {
@@ -201,25 +205,22 @@ export class PipelineService {
     pipelineId: string;
     userId: string;
     input: string;
-  }): Promise<Record<string, unknown>> {
+  }): Promise<PipelineExecutionWithOutputs> {
     try {
-      // Verify pipeline exists and belongs to user
-      const pipeline = await this.getPipelineById(data.pipelineId, data.userId);
-      if (!pipeline) {
-        throw new Error('Pipeline not found or access denied');
+      const response = await fetch(`${API_BASE_URL}/pipelines/execute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to execute pipeline');
       }
 
-      // For now, return a mock execution
-      // In a real app, you'd have an execution endpoint
-      return {
-        id: crypto.randomUUID(),
-        pipelineId: data.pipelineId,
-        userId: data.userId,
-        input: data.input,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      return await response.json();
     } catch (error) {
       console.error('Error creating pipeline execution:', error);
       throw new Error(`Failed to create pipeline execution: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -269,12 +270,20 @@ export class PipelineService {
   /**
    * Get pipeline execution with outputs
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getPipelineExecutionWithOutputs(id: string): Promise<PipelineExecutionWithOutputs | null> {
     try {
-      // For now, return null
-      // In a real app, you'd have an execution endpoint
+      const response = await fetch(`${API_BASE_URL}/pipelines/executions/${id}`);
+
+      if (response.status === 404) {
       return null;
+      }
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to get pipeline execution');
+      }
+
+      return await response.json();
     } catch (error) {
       console.error('Error getting pipeline execution:', error);
       throw new Error(`Failed to get pipeline execution: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -284,12 +293,16 @@ export class PipelineService {
   /**
    * Get all executions for a user
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getPipelineExecutionsByUserId(userId: string): Promise<Record<string, unknown>[]> {
     try {
-      // For now, return empty array
-      // In a real app, you'd have an executions endpoint
-      return [];
+      const response = await fetch(`${API_BASE_URL}/pipelines/executions?userId=${userId}`);
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to get user pipeline executions');
+      }
+
+      return await response.json();
     } catch (error) {
       console.error('Error getting user pipeline executions:', error);
       throw new Error(`Failed to get user pipeline executions: ${error instanceof Error ? error.message : 'Unknown error'}`);

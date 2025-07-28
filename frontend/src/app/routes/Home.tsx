@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Zap, Play, Code, Brain, Users, CheckCircle } from 'lucide-react';
+import { ArrowRight, Bot, Play, Code, Brain, Users, CheckCircle } from 'lucide-react';
 import heroImage from '@/assets/hero-ai-pipeline.jpg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,7 +15,7 @@ export const Home: React.FC = () => {
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && user.emailConfirmed) {
       navigate('/dashboard');
     }
   }, [isAuthenticated, user, navigate]);
@@ -59,7 +59,7 @@ export const Home: React.FC = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-lg flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+              <Bot className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-bold text-xl bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent">
               AI Agent Builder
@@ -231,7 +231,7 @@ export const Home: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="default" size="lg" onClick={()=>{navigate('/dashboard');}}>
-                <Zap className="mr-2 h-5 w-5" />
+                <Bot className="mr-2 h-5 w-5" />
                 Get Started for Free
               </Button>
               <Button variant="outline" size="lg">
@@ -250,9 +250,9 @@ export const Home: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="w-6 h-6 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-lg flex items-center justify-center">
-                <Zap className="h-4 w-4 text-primary-foreground" />
-              </div>
+                          <div className="w-6 h-6 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-lg flex items-center justify-center">
+              <Bot className="h-4 w-4 text-primary-foreground" />
+            </div>
               <span className="font-semibold">AI Agent Builder</span>
             </div>
             <p className="text-sm text-muted-foreground">

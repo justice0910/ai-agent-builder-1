@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import {  Mail, Lock, Zap, AlertCircle } from 'lucide-react';
+import {  Mail, Lock, Bot, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const Auth : React.FC = () => {
@@ -19,13 +19,6 @@ export const Auth : React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, user, navigate]);
-
   // Check if user is returning from email confirmation
   useEffect(() => {
     const confirmed = searchParams.get('confirmed');
@@ -33,6 +26,22 @@ export const Auth : React.FC = () => {
       toast.success('Email confirmed! You can now sign in.');
     }
   }, [searchParams]);
+
+  // Check if user was redirected due to unconfirmed email
+  useEffect(() => {
+    const emailConfirmation = searchParams.get('emailConfirmation');
+    if (emailConfirmation === 'true' && user) {
+      setPendingEmail(user.email);
+      toast.error('Please confirm your email before accessing the dashboard.');
+    }
+  }, [searchParams, user]);
+
+  // Redirect authenticated users to dashboard (only if email is confirmed)
+  useEffect(() => {
+    if (isAuthenticated && user && user.emailConfirmed) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleAuth = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
@@ -77,7 +86,7 @@ export const Auth : React.FC = () => {
           {/* Logo/Branding */}
           <div className="text-center mb-8">
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
-              <Zap className="h-8 w-8 text-primary-foreground" />
+              <Bot className="h-8 w-8 text-primary-foreground" />
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent">
               AI Agent Builder
@@ -133,9 +142,9 @@ export const Auth : React.FC = () => {
       <div className="w-full max-w-md">
         {/* Logo/Branding */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
-            <Zap className="h-8 w-8 text-primary-foreground" />
-          </div>
+                      <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
+              <Bot className="h-8 w-8 text-primary-foreground" />
+            </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent">
             AI Agent Builder
           </h1>
@@ -146,7 +155,7 @@ export const Auth : React.FC = () => {
 
         <Card className="shadow-ai">
           <CardHeader className="text-center">
-            <CardTitle>
+            <CardTitle className="bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent">
               {!isSignUp ? 'Sign In' : 'Create Account'}
             </CardTitle>
             <CardDescription>

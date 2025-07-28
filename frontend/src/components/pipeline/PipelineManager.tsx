@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { usePipelines } from '../../hooks/usePipelines';
+import { useState } from 'react';
+import { usePipelines } from '../../app/hooks/usePipelines';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';

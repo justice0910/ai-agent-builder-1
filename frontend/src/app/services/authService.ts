@@ -40,7 +40,7 @@ class AuthService {
           
           // Create user in our database
           try {
-            const response = await fetch('http://localhost:3002/api/users', {
+            const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -52,6 +52,16 @@ class AuthService {
                 emailConfirmed,
               }),
             });
+            
+            if (response.status === 202) {
+              // User creation pending email confirmation
+              console.log('⏳ User creation pending email confirmation');
+              return { 
+                user: null, 
+                requiresEmailConfirmation: true,
+                error: 'Please check your email and confirm your account before signing in.'
+              };
+            }
             
             if (!response.ok) {
               const errorData = await response.json();
@@ -120,7 +130,7 @@ class AuthService {
           
           // Ensure user exists in our database
           try {
-            const response = await fetch('http://localhost:3002/api/users', {
+            const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -132,6 +142,16 @@ class AuthService {
                 emailConfirmed,
               }),
             });
+            
+            if (response.status === 202) {
+              // User creation pending email confirmation
+              console.log('⏳ User creation pending email confirmation');
+              return { 
+                user: null, 
+                requiresEmailConfirmation: true,
+                error: 'Please confirm your email before signing in.'
+              };
+            }
             
             if (!response.ok) {
               const errorData = await response.json();
@@ -206,9 +226,16 @@ class AuthService {
         if (user) {
           const emailConfirmed = user.email_confirmed_at !== null;
           
+          console.log('🔍 User found:', {
+            id: user.id,
+            email: user.email,
+            email_confirmed_at: user.email_confirmed_at,
+            emailConfirmed
+          });
+          
           // Only return user if email is confirmed
           if (!emailConfirmed) {
-          console.log('⚠️ User email not confirmed, returning null');
+            console.log('⚠️ User email not confirmed, returning null');
             return null;
           }
           
@@ -246,6 +273,40 @@ class AuthService {
         return { 
           user: null, 
           error: error instanceof Error ? error.message : 'Failed to resend confirmation email' 
+      };
+    }
+  }
+
+  async createConfirmedUser(userId: string, email: string, name: string): Promise<AuthResponse> {
+    try {
+      console.log('✅ Creating confirmed user after email confirmation');
+      
+      const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users/confirmed`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: userId,
+          email,
+          name,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create confirmed user');
+      }
+
+      const userData = await response.json();
+      console.log('✅ Confirmed user created successfully:', userData);
+      
+      return { user: userData };
+    } catch (error) {
+      console.error('❌ Error creating confirmed user:', error);
+      return { 
+        user: null, 
+        error: error instanceof Error ? error.message : 'Failed to create confirmed user' 
       };
     }
   }

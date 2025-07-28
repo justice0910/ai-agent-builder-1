@@ -10,4 +10,9 @@ router.get('/:id', PipelineController.getById);
 router.put('/:id', PipelineController.update);
 router.delete('/:id', PipelineController.delete);
 
+// Execution routes
+router.post('/execute', PipelineController.execute);
+router.get('/executions', PipelineController.getExecutions);
+router.get('/executions/:id', PipelineController.getExecutionDetails);
+
 export default router; 

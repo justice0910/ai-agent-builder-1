@@ -21,6 +21,14 @@ export class UserController {
         return res.status(400).json({ error: 'Email is required' });
       }
 
+      // Only create user if email is confirmed
+      if (!emailConfirmed) {
+        return res.status(202).json({ 
+          message: 'User creation pending email confirmation',
+          requiresEmailConfirmation: true
+        });
+      }
+
       // Check if user already exists by ID
       const existingUserById = await db
         .select()
@@ -48,12 +56,12 @@ export class UserController {
         });
       }
 
-      // Create new user
+      // Create new user only if email is confirmed
       const [user] = await db.insert(schema.users).values({
         id,
         email,
         name: name || email.split('@')[0],
-        emailConfirmed,
+        emailConfirmed: true, // Always true since we only create confirmed users
       }).returning();
 
       res.status(201).json(user);
@@ -66,6 +74,65 @@ export class UserController {
       });
       res.status(500).json({ 
         error: 'Failed to create user',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  // Create user after email confirmation
+  static async createConfirmedUser(req: Request, res: Response) {
+    try {
+      const { id, email, name } = req.body;
+      
+      // Validate input
+      if (!id) {
+        return res.status(400).json({ error: 'User ID is required' });
+      }
+      
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+
+      // Check if user already exists by ID
+      const existingUserById = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.id, id))
+        .limit(1);
+
+      if (existingUserById.length > 0) {
+        // User exists, return the existing user
+        return res.status(200).json(existingUserById[0]);
+      }
+
+      // Check if email already exists
+      const existingUserByEmail = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.email, email))
+        .limit(1);
+
+      if (existingUserByEmail.length > 0) {
+        // Email is already taken by a different user
+        return res.status(409).json({ 
+          error: 'Email already registered with a different account',
+          details: 'This email address is already associated with another user'
+        });
+      }
+
+      // Create new user with confirmed email
+      const [user] = await db.insert(schema.users).values({
+        id,
+        email,
+        name: name || email.split('@')[0],
+        emailConfirmed: true,
+      }).returning();
+
+      res.status(201).json(user);
+    } catch (error) {
+      console.error('Error creating confirmed user:', error);
+      res.status(500).json({ 
+        error: 'Failed to create confirmed user',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
