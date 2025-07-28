@@ -9,6 +9,7 @@ interface AuthContextType {
   signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<void>;
+  checkEmailConfirmation: (email: string) => Promise<boolean>;
   isLoading: boolean;
   requiresEmailConfirmation: boolean;
   isAuthenticated: boolean; // New: indicates if auth check is complete
@@ -253,6 +254,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const checkEmailConfirmation = async (email: string): Promise<boolean> => {
+    try {
+      console.log('🔍 Checking email confirmation status for:', email);
+      const response = await authService.checkEmailConfirmation(email);
+      return response.confirmed || false;
+    } catch (error) {
+      console.error('❌ Error checking email confirmation:', error);
+      return false;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -260,6 +272,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       signup, 
       logout, 
       resendConfirmationEmail,
+      checkEmailConfirmation,
       isLoading, 
       requiresEmailConfirmation,
       isAuthenticated

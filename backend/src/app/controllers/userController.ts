@@ -138,6 +138,45 @@ export class UserController {
     }
   }
 
+  // Check email confirmation status
+  static async checkEmailConfirmation(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+
+      // Find user by email
+      const user = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.email, email))
+        .limit(1);
+
+      if (user.length === 0) {
+        return res.status(404).json({ 
+          confirmed: false,
+          error: 'User not found'
+        });
+      }
+
+      const confirmed = user[0].emailConfirmed;
+      
+      res.status(200).json({ 
+        confirmed,
+        email: user[0].email,
+        userId: user[0].id
+      });
+    } catch (error) {
+      console.error('Error checking email confirmation:', error);
+      res.status(500).json({ 
+        error: 'Failed to check email confirmation',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
   // Get user by ID
   static async getById(req: Request, res: Response) {
     try {

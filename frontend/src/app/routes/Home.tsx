@@ -79,10 +79,6 @@ export const Home: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge variant="secondary" className="w-fit">
-                  <Brain className="mr-2 h-3 w-3" />
-                  Powered by Advanced AI
-                </Badge>
                 <h1 className="text-4xl md:text-6xl font-bold leading-tight">
                   Build AI Workflows
                   <span className="bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent">
@@ -100,21 +96,6 @@ export const Home: React.FC = () => {
                   <Play className="mr-2 h-5 w-5" />
                   Start Building Free
                 </Button>
-                <Button variant="outline" size="lg">
-                  <Code className="mr-2 h-5 w-5" />
-                  View Demo
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-8 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-ai-primary" />
-                  No credit card required
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-ai-primary" />
-                  Free forever plan
-                </div>
               </div>
             </div>
 
@@ -185,36 +166,6 @@ export const Home: React.FC = () => {
                 </Button>
               </div>
             </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-ai-primary/10 to-ai-secondary/10 rounded-3xl blur-2xl" />
-              <Card className="relative p-8 shadow-ai">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <Users className="h-8 w-8 text-ai-primary" />
-                    <div>
-                      <h3 className="font-semibold">Join 10,000+ users</h3>
-                      <p className="text-sm text-muted-foreground">Building AI workflows daily</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Content processed</span>
-                      <Badge variant="secondary">2.5M+ documents</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Languages supported</span>
-                      <Badge variant="secondary">15+ languages</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Average time saved</span>
-                      <Badge variant="secondary">8 hours/week</Badge>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
           </div>
         </div>
       </section>
@@ -248,14 +199,14 @@ export const Home: React.FC = () => {
       {/* Footer */}
       <footer className="border-t border-border py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
                           <div className="w-6 h-6 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-lg flex items-center justify-center">
               <Bot className="h-4 w-4 text-primary-foreground" />
             </div>
               <span className="font-semibold">AI Agent Builder</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center md:text-left">
               © 2025 AI Agent Builder. Built with love for the VeriticalAI community.
             </p>
           </div>

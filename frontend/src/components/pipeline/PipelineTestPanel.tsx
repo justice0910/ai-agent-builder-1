@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import type { PipelineStep, PipelineExecution } from '@/types/pipeline';
 import { Play, Clock, CheckCircle, Copy } from 'lucide-react';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/app/hooks/use-mobile';
 
 interface PipelineTestPanelProps {
   steps: PipelineStep[];
@@ -16,6 +17,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
   steps,
   onRunPipeline,
 }) => {
+  const isMobile = useIsMobile();
   const [input, setInput] = useState(`Artificial Intelligence has become one of the most transformative technologies of our time. From machine learning algorithms that power recommendation systems to deep learning models that enable autonomous vehicles, AI is reshaping industries and revolutionizing how we interact with technology. Natural language processing has made it possible for computers to understand and generate human language with remarkable accuracy, while computer vision allows machines to interpret and analyze visual information. As AI continues to evolve, it promises to bring about even more significant changes in healthcare, education, finance, and countless other sectors.`);
   const [execution, setExecution] = useState<PipelineExecution | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -80,7 +82,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
               disabled={isRunning || steps.length === 0}
             >
               <Play className="w-4 h-4" />
-              {isRunning ? 'Running Pipeline...' : 'Run Pipeline'}
+              {!isMobile && (isRunning ? 'Running Pipeline...' : 'Run Pipeline')}
             </Button>
           </div>
         </CardContent>

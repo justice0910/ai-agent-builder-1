@@ -6,6 +6,7 @@ import { type PipelineStep as PipelineStepType, STEP_CONFIGS } from '@/types/pip
 import { GripVertical, X, Settings, ArrowDown } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useIsMobile } from '@/app/hooks/use-mobile';
 
 interface PipelineStepProps {
   step: PipelineStepType;
@@ -20,6 +21,7 @@ export const PipelineStep: React.FC<PipelineStepProps> = ({
   onRemove,
   onConfigure,
 }) => {
+  const isMobile = useIsMobile();
   const {
     attributes,
     listeners,
@@ -57,11 +59,13 @@ export const PipelineStep: React.FC<PipelineStepProps> = ({
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-2xl">{stepConfig.icon}</span>
-                <div>
-                  <h3 className="font-semibold text-sm">{stepConfig.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {stepConfig.description}
-                  </p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-sm truncate">{stepConfig.title}</h3>
+                  {!isMobile && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {stepConfig.description}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -89,7 +93,7 @@ export const PipelineStep: React.FC<PipelineStepProps> = ({
           <div className="flex flex-wrap gap-1">
             {Object.entries(step.config).map(([key, value]) => (
               <Badge key={key} variant="secondary" className="text-xs">
-                {key}: {String(value)}
+                {!isMobile && `${key}: `}{String(value)}
               </Badge>
             ))}
           </div>

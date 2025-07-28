@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import {  Mail, Lock, Bot, AlertCircle } from 'lucide-react';
+import {  Mail, Lock, Bot, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const Auth : React.FC = () => {
@@ -15,6 +15,7 @@ export const Auth : React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pendingEmail, setPendingEmail] = useState('');
+  const [isCheckingConfirmation, setIsCheckingConfirmation] = useState(false);
   const { user, isAuthenticated, login, signup, resendConfirmationEmail, isLoading, requiresEmailConfirmation } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -24,6 +25,8 @@ export const Auth : React.FC = () => {
     const confirmed = searchParams.get('confirmed');
     if (confirmed === 'true') {
       toast.success('Email confirmed! You can now sign in.');
+      // Clear any pending email state
+      setPendingEmail('');
     }
   }, [searchParams]);
 
@@ -35,6 +38,52 @@ export const Auth : React.FC = () => {
       toast.error('Please confirm your email before accessing the dashboard.');
     }
   }, [searchParams, user]);
+
+  // Handle email confirmation check when user returns from email link
+  useEffect(() => {
+    const confirmed = searchParams.get('confirmed');
+    if (confirmed === 'true' && email) {
+      setIsCheckingConfirmation(true);
+      // Try to sign in automatically after email confirmation
+      const attemptAutoSignIn = async () => {
+        try {
+          await login(email, password);
+          toast.success('Email confirmed and signed in successfully!');
+          navigate('/dashboard');
+        } catch (error) {
+          console.log('Auto sign-in failed, user needs to sign in manually');
+          setIsCheckingConfirmation(false);
+          toast.info('Email confirmed! Please sign in with your credentials.');
+        }
+      };
+      
+      if (email && password) {
+        attemptAutoSignIn();
+      } else {
+        setIsCheckingConfirmation(false);
+        toast.success('Email confirmed! Please sign in with your credentials.');
+      }
+    }
+  }, [searchParams, email, password, login, navigate]);
+
+  // Handle email confirmation completion
+  const handleEmailConfirmed = async () => {
+    if (!email || !password) {
+      toast.error('Please enter your email and password to sign in.');
+      return;
+    }
+
+    setIsCheckingConfirmation(true);
+    try {
+      await login(email, password);
+      toast.success('Email confirmed and signed in successfully!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Failed to sign in after email confirmation:', error);
+      setIsCheckingConfirmation(false);
+      toast.error('Email confirmed, but sign in failed. Please try again.');
+    }
+  };
 
   // Redirect authenticated users to dashboard (only if email is confirmed)
   useEffect(() => {
@@ -78,6 +127,24 @@ export const Auth : React.FC = () => {
     }
   };
 
+  // Show loading state when checking email confirmation
+  if (isCheckingConfirmation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
+            <Bot className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent mb-4">
+            AI Agent Builder
+          </h1>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ai-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Verifying email confirmation...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show email confirmation UI
   if (requiresEmailConfirmation || pendingEmail) {
     return (
@@ -109,6 +176,22 @@ export const Auth : React.FC = () => {
                 <p className="font-medium text-foreground mt-1">{pendingEmail}</p>
               </div>
               
+              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs">i</span>
+                  </div>
+                  <div className="text-sm text-blue-700 dark:text-blue-300">
+                    <p className="font-medium mb-1">What happens next?</p>
+                    <ul className="space-y-1 text-xs">
+                      <li>• Check your email inbox (and spam folder)</li>
+                      <li>• Click the confirmation link in the email</li>
+                      <li>• Return here to sign in with your account</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
               <div className="space-y-3">
                 <Button 
                   onClick={handleResendConfirmation}
@@ -116,7 +199,26 @@ export const Auth : React.FC = () => {
                   className="w-full"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Sending...' : 'Resend Confirmation Email'}
+                  {isLoading ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-2" />
+                      Resend Confirmation Email
+                    </>
+                  )}
+                </Button>
+                
+                <Button 
+                  onClick={handleEmailConfirmed}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  disabled={!email || !password || isLoading}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  I've Confirmed My Email - Sign Me In
                 </Button>
                 
                 <Button 
@@ -255,7 +357,7 @@ export const Auth : React.FC = () => {
         {/* Features Preview */}
         <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground mb-4">Trusted by AI enthusiasts worldwide</p>
-          <div className="flex justify-center gap-6 text-xs text-muted-foreground">
+          <div className="flex justify-center gap-2 sm:gap-4 md:gap-6 text-xs text-muted-foreground flex-wrap">
             <div className="flex items-center gap-1">
               <span>📝</span> Summarize
             </div>

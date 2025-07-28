@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -22,7 +23,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   }, [location.pathname]);
 
   // Show loading while authentication is being checked
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
     console.log('⏳ AuthGuard - Waiting for authentication to load...');
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,7 +35,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     );
   }
 
-  // If user is authenticated, show the intended content
+  // If user is authenticated and email is confirmed, show the intended content
   if (user && user.emailConfirmed) {
     console.log('✅ AuthGuard - User authenticated and email confirmed, showing content');
     return <>{children}</>;
@@ -43,6 +44,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   // If user is authenticated but email not confirmed, redirect to auth
   if (user && !user.emailConfirmed) {
     console.log('⚠️ AuthGuard - User authenticated but email not confirmed, redirecting to auth');
+    toast.error('Please confirm your email before accessing the dashboard.');
     return <Navigate to="/auth?emailConfirmation=true" replace />;
   }
 
@@ -56,7 +58,7 @@ export const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }
   const { user, isLoading, isAuthenticated } = useAuth();
 
   // Show loading while authentication is being checked
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
     console.log('⏳ GuestGuard - Waiting for authentication to load...');
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -68,7 +70,7 @@ export const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }
     );
   }
 
-  // If user is authenticated, redirect to dashboard
+  // If user is authenticated and email is confirmed, redirect to dashboard
   if (user && user.emailConfirmed) {
     console.log('🔀 GuestGuard - User authenticated and email confirmed, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;

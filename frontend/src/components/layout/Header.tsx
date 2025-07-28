@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { Bot, LogOut, User, Settings } from 'lucide-react';
+import { Bot, LogOut} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,18 +12,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/app/hooks/use-mobile';
 
 export const Header: React.FC = () => {
   const { user, logout, isLoading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
       await logout();
       toast.success('Successfully logged out');
-      navigate('/auth');
+      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Failed to logout. Please try again.');
@@ -41,7 +43,7 @@ export const Header: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              AI Agent Builder
+              {!isMobile && 'AI Agent Builder'}
             </h1>
           </div>
         </div>
@@ -78,21 +80,8 @@ export const Header: React.FC = () => {
                   </p>
                 </div>
               </div>
-              {/* @ts-ignore */}
               <DropdownMenuSeparator />
-              {/* @ts-ignore */}
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              {/* @ts-ignore */}
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              {/* @ts-ignore */}
               <DropdownMenuSeparator />
-              {/* @ts-ignore */}
               <DropdownMenuItem 
                 onClick={handleLogout} 
                 className="text-destructive"

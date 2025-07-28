@@ -277,6 +277,38 @@ class AuthService {
     }
   }
 
+  async checkEmailConfirmation(email: string): Promise<{ confirmed: boolean; error?: string }> {
+    try {
+      console.log('🔍 Checking email confirmation status for:', email);
+      
+      // Use our backend endpoint to check email confirmation status
+      const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users/check-email/${encodeURIComponent(email)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log('ℹ️ User not found for email:', email);
+          return { confirmed: false };
+        }
+        const errorData = await response.json();
+        console.error('❌ Error checking email confirmation:', errorData);
+        return { confirmed: false, error: errorData.error || 'Failed to check email confirmation' };
+      }
+
+      const data = await response.json();
+      console.log('📧 Email confirmation status:', data);
+      
+      return { confirmed: data.confirmed || false };
+    } catch (error) {
+      console.error('❌ Error checking email confirmation:', error);
+      return { confirmed: false, error: error instanceof Error ? error.message : 'Failed to check email confirmation' };
+    }
+  }
+
   async createConfirmedUser(userId: string, email: string, name: string): Promise<AuthResponse> {
     try {
       console.log('✅ Creating confirmed user after email confirmation');

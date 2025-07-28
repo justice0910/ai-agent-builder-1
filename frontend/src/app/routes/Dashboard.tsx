@@ -7,12 +7,14 @@ import { ChatInterface } from '../../components/pipeline/ChatInterface';
 import { Button } from '@/components/ui/button';
 import { usePipelines } from '../hooks/usePipelines';
 import { useAuth } from '../contexts/AuthContext';
+import { useIsMobile } from '../hooks/use-mobile';
 import type { PipelineStep, Pipeline, PipelineExecution } from '../../types/pipeline';
 import { realAiService } from '../services/realAiService';
 import { toast } from 'sonner';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const {
     pipelines,
     isLoadingPipelines,
@@ -216,39 +218,39 @@ export const Dashboard: React.FC = () => {
               <div className="flex justify-between items-center mb-4">
                 <button
                   onClick={() => setShowPipelineList(true)}
-                  className="mb-4 px-4 py-2 border border-ai-primary/30 text-ai-primary rounded-lg hover:bg-ai-primary/10 hover:border-ai-primary/50 transition-all duration-200 flex items-center gap-2 backdrop-blur-sm"
+                  className="px-2 sm:px-4 py-2 border border-ai-primary/30 text-ai-primary rounded-lg hover:bg-ai-primary/10 hover:border-ai-primary/50 transition-all duration-200 flex items-center gap-1 sm:gap-2 backdrop-blur-sm"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  Back to Pipelines
+                  {!isMobile && 'Back to Pipelines'}
                 </button>
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   <Button
                     onClick={() => setShowChatInterface(true)}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-500 via-pink-500 to-ai-primary text-white rounded-md hover:from-purple-600 hover:via-pink-600 hover:to-ai-secondary flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    className="px-2 sm:px-4 py-2 bg-gradient-to-r from-purple-500 via-pink-500 to-ai-primary text-white rounded-md hover:from-purple-600 hover:via-pink-600 hover:to-ai-secondary flex items-center gap-1 sm:gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    AI Assistant
+                    {!isMobile && 'AI Assistant'}
                   </Button>
                   <button
                     onClick={handleSavePipeline}
                     disabled={!user?.id || currentPipeline.steps.length === 0}
-                    className="px-4 py-2 bg-gradient-to-r from-ai-primary to-ai-secondary text-white rounded-md hover:from-ai-primary/90 hover:to-ai-secondary/90 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="px-2 sm:px-4 py-2 bg-gradient-to-r from-ai-primary to-ai-secondary text-white rounded-md hover:from-ai-primary/90 hover:to-ai-secondary/90 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     {isCreatingPipeline || isUpdatingPipeline ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Saving...
+                        {!isMobile && 'Saving...'}
                       </>
                     ) : (
                       <>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
-                        Save Pipeline
+                        {!isMobile && 'Save Pipeline'}
                       </>
                     )}
                   </button>

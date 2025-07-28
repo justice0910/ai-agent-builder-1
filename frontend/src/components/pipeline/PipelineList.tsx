@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Edit, Trash2, Plus } from 'lucide-react';
+import { useIsMobile } from '@/app/hooks/use-mobile';
 
 // Type for pipelines from backend
 interface PipelineWithSteps {
@@ -37,14 +38,15 @@ export const PipelineList: React.FC<PipelineListProps> = ({
   onDeletePipeline,
   onCreateNew,
 }) => {
+  const isMobile = useIsMobile();
   if (isLoading) {
     return (
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Saved Pipelines</h2>
           <Button onClick={onCreateNew} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            New Pipeline
+            <Plus className="w-4 h-4" />
+            {!isMobile && <span className="ml-2">New Pipeline</span>}
           </Button>
         </div>
         <div className="grid gap-4">
@@ -71,8 +73,8 @@ export const PipelineList: React.FC<PipelineListProps> = ({
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Saved Pipelines</h2>
           <Button onClick={onCreateNew} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            New Pipeline
+            <Plus className="w-4 h-4" />
+            {!isMobile && <span className="ml-2">New Pipeline</span>}
           </Button>
         </div>
         <Card>
@@ -83,8 +85,8 @@ export const PipelineList: React.FC<PipelineListProps> = ({
               <p className="text-sm">Create your first AI pipeline to get started</p>
             </div>
             <Button onClick={onCreateNew}>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Your First Pipeline
+              <Plus className="w-4 h-4" />
+              {!isMobile && <span className="ml-2">Create Your First Pipeline</span>}
             </Button>
           </CardContent>
         </Card>
@@ -97,8 +99,8 @@ export const PipelineList: React.FC<PipelineListProps> = ({
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Saved Pipelines</h2>
         <Button onClick={onCreateNew} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          New Pipeline
+          <Plus className="w-4 h-4" />
+          {!isMobile && <span className="ml-2">New Pipeline</span>}
         </Button>
       </div>
       <div className="grid gap-4">
@@ -118,8 +120,8 @@ export const PipelineList: React.FC<PipelineListProps> = ({
                     size="sm"
                     onClick={() => onSelectPipeline(pipeline)}
                   >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
+                    <Edit className="w-4 h-4" />
+                    {!isMobile && <span className="ml-1">Edit</span>}
                   </Button>
                   <Button
                     variant="outline"
@@ -135,9 +137,11 @@ export const PipelineList: React.FC<PipelineListProps> = ({
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">
-                    {pipeline.steps.length} step{pipeline.steps.length !== 1 ? 's' : ''}
-                  </Badge>
+                  {!isMobile && (
+                    <Badge variant="secondary">
+                      {pipeline.steps.length} step{pipeline.steps.length !== 1 ? 's' : ''}
+                    </Badge>
+                  )}
                   <span className="text-sm text-muted-foreground">
                     Created {new Date(pipeline.createdAt).toLocaleDateString()}
                   </span>
@@ -147,8 +151,8 @@ export const PipelineList: React.FC<PipelineListProps> = ({
                   onClick={() => onSelectPipeline(pipeline)}
                   className="bg-ai-primary hover:bg-ai-primary/90"
                 >
-                  <Play className="w-4 h-4 mr-1" />
-                  Run
+                  <Play className="w-4 h-4" />
+                  {!isMobile && <span className="ml-1">Run</span>}
                 </Button>
               </div>
             </CardContent>
