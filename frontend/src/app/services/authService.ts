@@ -28,6 +28,7 @@ class AuthService {
         if (error) throw error;
         
         if (data.user) {
+          // check if email confirmation is required
           const emailConfirmed = !!data.user.email_confirmed_at;
           
           const user: User = {
@@ -37,6 +38,7 @@ class AuthService {
             emailConfirmed,
           };
           
+          // create user
           try {
             const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users`, {
               method: 'POST',

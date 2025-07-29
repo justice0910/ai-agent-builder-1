@@ -5,12 +5,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+
+// create connection
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
+// create postgres client
 const client = postgres(connectionString);
 
 export const db = drizzle(client, { schema });

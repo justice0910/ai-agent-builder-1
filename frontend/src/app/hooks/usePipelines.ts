@@ -44,6 +44,7 @@ export function usePipelines() {
     enabled: !!user?.id,
   });
 
+  // get a specific pipeline by id
   const usePipeline = (pipelineId: string) => {
     return useQuery({
       queryKey: ['pipeline', pipelineId],
@@ -55,6 +56,7 @@ export function usePipelines() {
     });
   };
 
+  // create pipeline mutation
   const createPipelineMutation = useMutation({
     mutationFn: (data: Omit<CreatePipelineData, 'userId'>) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -69,6 +71,7 @@ export function usePipelines() {
     },
   });
 
+  // update pipeline mutation
   const updatePipelineMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdatePipelineData }) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -86,6 +89,7 @@ export function usePipelines() {
     },
   });
 
+  // delete pipeline mutation
   const deletePipelineMutation = useMutation({
     mutationFn: (pipelineId: string) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -100,11 +104,13 @@ export function usePipelines() {
     },
   });
 
+  // search pipelines
   const searchPipelines = useCallback(async (searchTerm: string) => {
     if (!user?.id) throw new Error('User not authenticated');
     return pipelineService.searchPipelines(user.id, searchTerm);
   }, [user?.id]);
 
+  // get user statistics
   const useUserStats = () => {
     return useQuery({
       queryKey: ['userStats', user?.id],
@@ -116,6 +122,7 @@ export function usePipelines() {
     });
   };
 
+  // get pipeline executions
   const usePipelineExecutions = () => {
     return useQuery({
       queryKey: ['pipelineExecutions', user?.id],
@@ -158,6 +165,7 @@ export function usePipelines() {
     },
   });
 
+  // add pipeline execution output
   const addExecutionOutputMutation = useMutation({
     mutationFn: ({ executionId, stepId, output, processingTime }: {
       executionId: string;

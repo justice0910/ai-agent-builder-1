@@ -58,6 +58,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setIsGenerating(true);
 
     try {
+      // call the backend to generate pipeline steps
       const result = await realAiService.generateSteps(userMessage.content);
       const generatedSteps: PipelineStep[] = result.steps.map((step: any, index: number) => ({
         id: step.id,
@@ -75,6 +76,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       setMessages(prev => [...prev, assistantMessage]);
 
+      // store steps for later use
       (assistantMessage as any).generatedSteps = generatedSteps;
 
     } catch (error) {
@@ -82,6 +84,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       
       let errorContent = `Sorry, I couldn't generate the pipeline steps. Please try again with a different description.`;
       
+      // check language restriction error
       if (error instanceof Error && error.message.includes('restricted')) {
         errorContent = `The suggested language is restricted. Please try again with a supported language like English, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, or other common languages.`;
       } else if (error instanceof Error) {

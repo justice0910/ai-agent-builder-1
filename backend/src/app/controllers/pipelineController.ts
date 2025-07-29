@@ -7,6 +7,7 @@ type Request = express.Request;
 type Response = express.Response;
 
 export class PipelineController {
+  // create a new pipeline
   static async create(req: Request, res: Response) {
     try {
       const { name, description, userId, steps } = req.body;
@@ -26,6 +27,7 @@ export class PipelineController {
       let user = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
       
       if (user.length === 0) {
+        // create user
         const [newUser] = await db.insert(schema.users).values({
           id: userId,
           email: `${userId}@temp.com`, 
@@ -35,12 +37,14 @@ export class PipelineController {
         user = [newUser];
       }
 
+      // create pipeline
       const [pipeline] = await db.insert(schema.pipelines).values({
         name: name.trim(),
         description: description?.trim(),
         userId: userId,
       }).returning();
 
+      // create steps
       const stepsData = steps.map((step: any, index: number) => ({
         pipelineId: pipeline.id,
         type: step.type,
@@ -63,7 +67,7 @@ export class PipelineController {
       });
       
       let errorMessage = 'Failed to create pipeline';
-      if (error instanceof Error) {
+      if (error instanceof Error) { 
         if (error.message.includes('foreign key constraint')) {
           errorMessage = 'User not found. Please sign in again.';
         } else if (error.message.includes('duplicate key')) {
@@ -80,6 +84,7 @@ export class PipelineController {
     }
   }
 
+  // get all pipelines for a user
   static async getAllByUser(req: Request, res: Response) {
     try {
       const { userId } = req.query;
@@ -94,6 +99,7 @@ export class PipelineController {
         .where(eq(schema.pipelines.userId, userId as string))
         .orderBy(schema.pipelines.createdAt);
 
+      // get steps for each pipeline
       const pipelinesWithSteps = await Promise.all(
         pipelines.map(async (pipeline) => {
           const steps = await db
@@ -116,6 +122,7 @@ export class PipelineController {
     }
   }
 
+  // get a pipeline by id
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -149,6 +156,7 @@ export class PipelineController {
     }
   }
 
+  // update a pipeline
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -162,6 +170,8 @@ export class PipelineController {
         return res.status(400).json({ error: 'User ID is required' });
       }
 
+
+      // check if pipeline exists
       const [existingPipeline] = await db
         .select()
         .from(schema.pipelines)
@@ -196,6 +206,8 @@ export class PipelineController {
         await db.insert(schema.pipelineSteps).values(stepsData);
       }
 
+
+      // get updated steps
       const updatedSteps = await db
         .select()
         .from(schema.pipelineSteps)
@@ -212,6 +224,8 @@ export class PipelineController {
     }
   }
 
+
+  // delete a pipeline
   static async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -241,6 +255,7 @@ export class PipelineController {
     }
   }
 
+  // execute a pipeline
   static async execute(req: Request, res: Response) {
     try {
       const { pipelineId, userId, input } = req.body;
@@ -357,6 +372,7 @@ export class PipelineController {
     }
   }
 
+  // get execution history for a user
   static async getExecutions(req: Request, res: Response) {
     try {
       const { userId } = req.query;
@@ -378,6 +394,7 @@ export class PipelineController {
     }
   }
 
+  // get execution details
   static async getExecutionDetails(req: Request, res: Response) {
     try {
       const { id } = req.params;

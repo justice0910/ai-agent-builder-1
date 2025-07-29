@@ -51,6 +51,7 @@ interface PipelineExecutionWithOutputs extends PipelineExecution {
 const API_BASE_URL = `http://localhost:${import.meta.env.VITE_PORT || 3001}/api`;
 
 export class PipelineService {
+  // create a new pipeline with steps
   async createPipeline(data: CreatePipelineData): Promise<PipelineWithSteps> {
     try {
       if (!data.name.trim()) {
@@ -85,6 +86,7 @@ export class PipelineService {
     }
   }
 
+  // get pipeline by id 
   async getPipelineById(id: string, userId?: string): Promise<PipelineWithSteps | null> {
     try {
       const url = new URL(`${API_BASE_URL}/pipelines/${id}`);
@@ -109,6 +111,7 @@ export class PipelineService {
     }
   }
 
+  // get all pipeline for user
   async getPipelinesByUserId(userId: string): Promise<PipelineWithSteps[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/pipelines?userId=${userId}`);
@@ -124,6 +127,7 @@ export class PipelineService {
     }
   }
 
+  // update existing pipeline
   async updatePipeline(id: string, userId: string, data: UpdatePipelineData): Promise<PipelineWithSteps | null> {
     try {
       const response = await fetch(`${API_BASE_URL}/pipelines/${id}`, {
@@ -152,6 +156,8 @@ export class PipelineService {
     }
   }
 
+
+  // delete pipeline
   async deletePipeline(id: string, userId: string): Promise<boolean> {
     try {
       const response = await fetch(`${API_BASE_URL}/pipelines/${id}`, {
@@ -177,6 +183,7 @@ export class PipelineService {
     }
   }
 
+  // create a pipeline execution
   async createPipelineExecution(data: {
     pipelineId: string;
     userId: string;
@@ -202,6 +209,7 @@ export class PipelineService {
     }
   }
 
+  // update pipeline execution status
   async updatePipelineExecution(id: string, data: {
     status?: 'pending' | 'running' | 'completed' | 'failed';
     totalProcessingTime?: number;
@@ -217,6 +225,8 @@ export class PipelineService {
     }
   }
 
+
+  // add output for a pipeline execution step
   async addPipelineExecutionOutput(data: {
     executionId: string;
     stepId: string;
@@ -229,6 +239,7 @@ export class PipelineService {
     }
   }
 
+  // get pipeline execution with outputs
   async getPipelineExecutionWithOutputs(id: string): Promise<PipelineExecutionWithOutputs | null> {
     try {
       const response = await fetch(`${API_BASE_URL}/pipelines/executions/${id}`);
@@ -249,6 +260,7 @@ export class PipelineService {
   }
 
 
+  // get all executions for a user
   async getPipelineExecutionsByUserId(userId: string): Promise<Record<string, unknown>[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/pipelines/executions?userId=${userId}`);
@@ -264,6 +276,7 @@ export class PipelineService {
     }
   }
 
+  // get user statistics
   async getUserStats(userId: string): Promise<{
     totalPipelines: number;
     totalExecutions: number;
@@ -286,6 +299,7 @@ export class PipelineService {
     }
   }
 
+  // search pipelines by name
   async searchPipelines(userId: string, searchTerm: string): Promise<PipelineWithSteps[]> {
     try {
       const allPipelines = await this.getPipelinesByUserId(userId);

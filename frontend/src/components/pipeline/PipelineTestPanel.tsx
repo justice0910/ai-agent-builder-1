@@ -35,6 +35,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
       const result = await onRunPipeline(input);
       setExecution(result);
       
+      // check the execution status
       if (result.status === 'completed') {
         toast.success('Pipeline executed successfully!');
       } else if (result.status === 'failed') {
@@ -44,6 +45,7 @@ export const PipelineTestPanel: React.FC<PipelineTestPanelProps> = ({
       console.error('Pipeline execution failed:', error);
       setExecution(null); 
       
+      // show speciif error message
       const errorMessage = error instanceof Error ? error.message : 'Pipeline execution failed';
       toast.error(errorMessage);
     } finally {

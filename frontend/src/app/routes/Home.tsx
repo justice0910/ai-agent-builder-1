@@ -12,6 +12,7 @@ export const Home: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // redirect authenticated users to dashboard
   useEffect(() => {
     if (isAuthenticated && user && user.emailConfirmed) {
       navigate('/dashboard');

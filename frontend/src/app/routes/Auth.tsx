@@ -19,6 +19,8 @@ export const Auth : React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+
+  // check if user is returning from email confirmation
   useEffect(() => {
     const confirmed = searchParams.get('confirmed');
     if (confirmed === 'true') {
@@ -27,6 +29,8 @@ export const Auth : React.FC = () => {
     }
   }, [searchParams]);
 
+
+  // check if user was redirected
   useEffect(() => {
     const emailConfirmation = searchParams.get('emailConfirmation');
     if (emailConfirmation === 'true' && user) {

@@ -36,10 +36,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [requiresEmailConfirmation, setRequiresEmailConfirmation] = useState(false);
 
+  // check and restor user session
   const checkAndRestoreSession = async () => {
     try {
+      // check supabase session directly
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        // check if session is expired
         const now = Math.floor(Date.now() / 1000);
         if (session.expires_at && session.expires_at < now) {
           const { data: { session: refreshedSession } } = await supabase.auth.refreshSession();
@@ -52,6 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
       } 
+      // get current user
       const currentUser = await authService.getCurrentUser();
       
       if (currentUser) {
@@ -69,11 +73,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     checkAndRestoreSession();
 
+    // listen for auth state changes
     const { data: { subscription } } = authService.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session && typeof session === 'object' && 'user' in session) {
           const sessionUser = (session as { user: any }).user;
           
+          // check if email is confirmed
           const emailConfirmed = sessionUser.email_confirmed_at !== null;
           
           if (!emailConfirmed) {
@@ -92,11 +98,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
           setRequiresEmailConfirmation(false);
         } else if (event === 'TOKEN_REFRESHED') {
+
+          // check again after token refresh
           setTimeout(checkAndRestoreSession, 100);
         }
       }
     );
 
+    // enhanced page visibility
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         setTimeout(checkAndRestoreSession, 500);
@@ -122,6 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
+  // add a debug effect to log user state changes
   useEffect(() => {
     const shouldBeAuthenticated = !!user && !!user.emailConfirmed;
     setIsAuthenticated(shouldBeAuthenticated);

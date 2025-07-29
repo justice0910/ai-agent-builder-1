@@ -81,6 +81,7 @@ export function PipelineManager() {
         steps: formData.steps,
       });
 
+      // reset form
       setFormData({
         name: '',
         description: '',
@@ -163,6 +164,7 @@ export function PipelineManager() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Pipeline Manager</h1>
@@ -176,6 +178,7 @@ export function PipelineManager() {
         </Button>
       </div>
 
+      {/* Error Display */}
       {error && (
         <Alert>
           <AlertDescription>

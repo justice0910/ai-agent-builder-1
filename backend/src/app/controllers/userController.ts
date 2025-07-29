@@ -7,6 +7,7 @@ type Request = express.Request;
 type Response = express.Response;
 
 export class UserController {
+  // create a new user
   static async create(req: Request, res: Response) {
     try {
       const { id, email, name, emailConfirmed = false } = req.body;
@@ -71,6 +72,7 @@ export class UserController {
     }
   }
 
+  // create user after email confirmation
   static async createConfirmedUser(req: Request, res: Response) {
     try {
       const { id, email, name } = req.body;
@@ -123,6 +125,7 @@ export class UserController {
     }
   }
 
+  // check email confirmation
   static async checkEmailConfirmation(req: Request, res: Response) {
     try {
       const { email } = req.params;
@@ -160,6 +163,7 @@ export class UserController {
     }
   }
 
+  // get user by id
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -181,6 +185,7 @@ export class UserController {
     }
   }
 
+  // update user
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;

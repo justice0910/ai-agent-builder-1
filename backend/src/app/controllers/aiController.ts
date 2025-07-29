@@ -7,6 +7,8 @@ export const executePipeline = async (req: Request, res: Response) => {
   try {
     const { steps, input } = req.body;
 
+
+    // validate request
     if (!steps || !Array.isArray(steps)) {
       return res.status(400).json({ 
         error: 'Invalid request: steps array is required' 
@@ -19,6 +21,7 @@ export const executePipeline = async (req: Request, res: Response) => {
       });
     }
 
+    // validate each step
     for (const step of steps) {
       if (!step.id || !step.type || !step.config) {
         return res.status(400).json({ 
@@ -34,6 +37,7 @@ export const executePipeline = async (req: Request, res: Response) => {
   } catch (error) {
  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
+ // check language restriction error
     if (errorMessage.includes('restricted')) {
       return res.status(400).json({ 
         error: 'Language restriction',

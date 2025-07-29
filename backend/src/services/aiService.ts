@@ -48,10 +48,12 @@ export class AiService {
     }
   }
 
+  // validate if a language is supported
   private validateLanguage(language: string): boolean {
     return SUPPORTED_LANGUAGES.includes(language);
   }
 
+  // get list of supported languages
   getSupportedLanguages(): string[] {
     return [...SUPPORTED_LANGUAGES];
   }
