@@ -25,11 +25,12 @@ class AuthService {
           }
         });
         
+
         if (error) throw error;
         
         if (data.user) {
           // Check if email confirmation is required
-          const emailConfirmed = data.user.email_confirmed_at !== null;
+          const emailConfirmed = !!data.user.email_confirmed_at;
           
           const user: User = {
             id: data.user.id,
@@ -107,11 +108,13 @@ class AuthService {
           password,
         });
         
+        console.log('data.user: ', data.user);
+        
         if (error) throw error;
         
         if (data.user) {
           // Check if email is confirmed
-          const emailConfirmed = data.user.email_confirmed_at !== null;
+          const emailConfirmed = !!data.user.email_confirmed_at;
           
           if (!emailConfirmed) {
             return { 

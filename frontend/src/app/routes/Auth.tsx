@@ -16,7 +16,7 @@ export const Auth : React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pendingEmail, setPendingEmail] = useState('');
   const [isCheckingConfirmation, setIsCheckingConfirmation] = useState(false);
-  const { user, isAuthenticated, login, signup, resendConfirmationEmail, isLoading, requiresEmailConfirmation } = useAuth();
+  const { user, isAuthenticated, login, signup, resendConfirmationEmail, resetAll, isLoading, requiresEmailConfirmation } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -225,6 +225,7 @@ export const Auth : React.FC = () => {
                   onClick={() => {
                     setPendingEmail('');
                     setIsSignUp(false);
+                    resetAll();
                   }}
                   variant="ghost" 
                   className="w-full"
