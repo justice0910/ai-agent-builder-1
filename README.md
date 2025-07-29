@@ -57,6 +57,22 @@ npm run install:all
 Create environment files for both frontend and backend:
 
 **Backend (.env in backend/ directory):**
+```bash
+# Copy the example file
+cp backend/env.example backend/.env
+# Then edit backend/.env with your actual values
+```
+
+**Frontend (.env in frontend/ directory):**
+```bash
+# Copy the example file
+cp frontend/env.example frontend/.env
+# Then edit frontend/.env with your actual values
+```
+
+**Required Environment Variables:**
+
+Backend (backend/.env):
 ```env
 DATABASE_URL=your_supabase_connection_string
 GROQ_API_KEY=your_groq_api_key
@@ -64,7 +80,7 @@ PORT=3001
 NODE_ENV=development
 ```
 
-**Frontend (.env in frontend/ directory):**
+Frontend (frontend/.env):
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
