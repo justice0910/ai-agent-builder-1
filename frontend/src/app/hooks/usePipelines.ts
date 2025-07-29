@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { pipelineService } from '../services/pipelineService';
 import { useAuth } from '../contexts/AuthContext';
 
-// Define the types locally since they're not in the frontend types
 interface CreatePipelineData {
   name: string;
   description?: string;
@@ -30,10 +29,8 @@ export function usePipelines() {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
-  // Query key for user pipelines
   const pipelinesQueryKey = ['pipelines', user?.id];
 
-  // Get all pipelines for the current user
   const {
     data: pipelines = [],
     isLoading: isLoadingPipelines,
@@ -47,7 +44,6 @@ export function usePipelines() {
     enabled: !!user?.id,
   });
 
-  // Get a specific pipeline by ID
   const usePipeline = (pipelineId: string) => {
     return useQuery({
       queryKey: ['pipeline', pipelineId],
@@ -59,7 +55,6 @@ export function usePipelines() {
     });
   };
 
-  // Create pipeline mutation
   const createPipelineMutation = useMutation({
     mutationFn: (data: Omit<CreatePipelineData, 'userId'>) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -74,7 +69,6 @@ export function usePipelines() {
     },
   });
 
-  // Update pipeline mutation
   const updatePipelineMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdatePipelineData }) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -92,7 +86,6 @@ export function usePipelines() {
     },
   });
 
-  // Delete pipeline mutation
   const deletePipelineMutation = useMutation({
     mutationFn: (pipelineId: string) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -107,13 +100,11 @@ export function usePipelines() {
     },
   });
 
-  // Search pipelines
   const searchPipelines = useCallback(async (searchTerm: string) => {
     if (!user?.id) throw new Error('User not authenticated');
     return pipelineService.searchPipelines(user.id, searchTerm);
   }, [user?.id]);
 
-  // Get user statistics
   const useUserStats = () => {
     return useQuery({
       queryKey: ['userStats', user?.id],
@@ -125,7 +116,6 @@ export function usePipelines() {
     });
   };
 
-  // Get pipeline executions
   const usePipelineExecutions = () => {
     return useQuery({
       queryKey: ['pipelineExecutions', user?.id],
@@ -137,7 +127,6 @@ export function usePipelines() {
     });
   };
 
-  // Create pipeline execution
   const createExecutionMutation = useMutation({
     mutationFn: ({ pipelineId, input }: { pipelineId: string; input: string }) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -156,7 +145,6 @@ export function usePipelines() {
     },
   });
 
-  // Update pipeline execution
   const updateExecutionMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: { status?: 'pending' | 'running' | 'completed' | 'failed'; totalProcessingTime?: number } }) => {
       return pipelineService.updatePipelineExecution(id, data);
@@ -170,7 +158,6 @@ export function usePipelines() {
     },
   });
 
-  // Add pipeline execution output
   const addExecutionOutputMutation = useMutation({
     mutationFn: ({ executionId, stepId, output, processingTime }: {
       executionId: string;
@@ -194,18 +181,15 @@ export function usePipelines() {
     },
   });
 
-  // Clear error
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
   return {
-    // Data
     pipelines,
     isLoadingPipelines,
     pipelinesError,
     
-    // Mutations
     createPipeline: createPipelineMutation.mutate,
     updatePipeline: updatePipelineMutation.mutate,
     deletePipeline: deletePipelineMutation.mutate,
@@ -213,7 +197,6 @@ export function usePipelines() {
     updateExecution: updateExecutionMutation.mutate,
     addExecutionOutput: addExecutionOutputMutation.mutate,
     
-    // Loading states
     isCreatingPipeline: createPipelineMutation.isPending,
     isUpdatingPipeline: updatePipelineMutation.isPending,
     isDeletingPipeline: deletePipelineMutation.isPending,
@@ -221,16 +204,13 @@ export function usePipelines() {
     isUpdatingExecution: updateExecutionMutation.isPending,
     isAddingExecutionOutput: addExecutionOutputMutation.isPending,
     
-    // Error handling
     error,
     clearError,
     
-    // Hooks
     usePipeline,
     useUserStats,
     usePipelineExecutions,
     
-    // Utilities
     searchPipelines,
   };
 } 

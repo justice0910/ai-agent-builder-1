@@ -48,12 +48,10 @@ export class AiService {
     }
   }
 
-  // Validate if a language is supported
   private validateLanguage(language: string): boolean {
     return SUPPORTED_LANGUAGES.includes(language);
   }
 
-  // Get list of supported languages
   getSupportedLanguages(): string[] {
     return [...SUPPORTED_LANGUAGES];
   }
@@ -94,7 +92,7 @@ export class AiService {
     } catch (error) {
       execution.status = 'failed';
       execution.totalProcessingTime = Date.now() - startTime;
-      throw error; // Re-throw to let the controller handle it
+      throw error;
     }
 
     return execution;
@@ -148,7 +146,6 @@ Please provide only the summary without any additional explanations.`;
   private async translate(input: string, config: StepConfig): Promise<string> {
     const { targetLanguage = 'Spanish' } = config;
     
-    // Validate the target language
     if (!this.validateLanguage(targetLanguage)) {
       throw new Error(`The suggested language "${targetLanguage}" is restricted. Please choose from the supported languages.`);
     }
@@ -279,10 +276,8 @@ Respond with only the JSON array, no additional text.`;
         throw new Error('AI service returned empty response. Please check your API key and try again.');
       }
 
-      // Parse the JSON response
       const steps = JSON.parse(text.trim());
       
-      // Validate the steps
       if (!Array.isArray(steps)) {
         throw new Error('AI service returned invalid response format');
       }
@@ -296,7 +291,6 @@ Respond with only the JSON array, no additional text.`;
           throw new Error(`Invalid step type: ${step.type}`);
         }
 
-        // Validate language for translation steps
         if (step.type === 'translate' && step.config.targetLanguage) {
           if (!this.validateLanguage(step.config.targetLanguage)) {
             throw new Error(`The suggested language "${step.config.targetLanguage}" is restricted. Please choose from the supported languages.`);

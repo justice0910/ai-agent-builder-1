@@ -49,26 +49,19 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* @ts-ignore */}
           <DropdownMenu>
-            {/* @ts-ignore */}
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                {/* @ts-ignore */}
                 <Avatar className="h-8 w-8">
-                  {/* @ts-ignore */}
                   <AvatarFallback className="bg-gradient-primary text-white">
                     {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            {/* @ts-ignore */}
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <div className="flex items-center space-x-2 p-2">
-                {/* @ts-ignore */}
                 <Avatar className="h-8 w-8">
-                  {/* @ts-ignore */}
                   <AvatarFallback className="bg-gradient-primary text-white">
                     {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>

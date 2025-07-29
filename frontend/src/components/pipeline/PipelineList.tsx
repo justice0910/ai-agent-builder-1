@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Edit, Trash2, Plus } from 'lucide-react';
 import { useIsMobile } from '@/app/hooks/use-mobile';
 
-// Type for pipelines from backend
 interface PipelineWithSteps {
   id: string;
   name: string;

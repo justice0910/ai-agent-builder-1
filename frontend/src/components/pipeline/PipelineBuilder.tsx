@@ -171,7 +171,6 @@ export const PipelineBuilder: React.FC<PipelineBuilderProps> = ({
               </div>
             </div>
           ) : (
-            // @ts-ignore
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

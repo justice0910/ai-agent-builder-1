@@ -8,18 +8,14 @@ export interface PipelineStep {
 }
 
 export interface StepConfig {
-  // Summarize config
   length?: 'short' | 'medium' | 'long';
   format?: 'paragraph' | 'bullets' | 'outline';
   
-  // Translate config
   targetLanguage?: string;
   
-  // Rewrite config
   tone?: 'casual' | 'formal' | 'professional' | 'friendly' | 'academic';
   style?: 'concise' | 'detailed' | 'persuasive' | 'informative';
   
-  // Extract config
   extractType?: 'keywords' | 'entities' | 'topics' | 'sentiment';
 }
 

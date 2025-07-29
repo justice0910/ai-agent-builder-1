@@ -6,12 +6,9 @@ export class RealAiService {
   constructor() {
     const port = import.meta.env.VITE_PORT || 3001;
     this.apiBaseUrl = `http://localhost:${port}/api`;
-    console.log('🤖 Real AI Service initialized with Backend API');
   }
 
   async executePipeline(steps: PipelineStep[], input: string): Promise<PipelineExecution> {
-    console.log('🚀 Running pipeline with backend AI service');
-
     try {
       const response = await fetch(`${this.apiBaseUrl}/ai/execute`, {
         method: 'POST',
@@ -33,14 +30,11 @@ export class RealAiService {
       return result;
 
     } catch (error) {
-      console.error('❌ Pipeline execution failed:', error);
       throw error;
     }
   }
 
   async generateSteps(instruction: string): Promise<{ steps: PipelineStep[] }> {
-    console.log('🤖 Generating pipeline steps from instruction');
-
     try {
       const response = await fetch(`${this.apiBaseUrl}/ai/generate-steps`, {
         method: 'POST',
@@ -61,11 +55,9 @@ export class RealAiService {
       return result;
 
     } catch (error) {
-      console.error('❌ Pipeline step generation failed:', error);
       throw error;
     }
   }
 }
 
-// Export singleton instance
 export const realAiService = new RealAiService(); 

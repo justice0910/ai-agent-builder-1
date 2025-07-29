@@ -16,7 +16,6 @@ export interface AuthResponse {
 class AuthService {
   async signUp(email: string, password: string): Promise<AuthResponse> {
       try {
-      console.log('🔐 Using Supabase for signup');
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -29,7 +28,6 @@ class AuthService {
         if (error) throw error;
         
         if (data.user) {
-          // Check if email confirmation is required
           const emailConfirmed = !!data.user.email_confirmed_at;
           
           const user: User = {
@@ -39,7 +37,6 @@ class AuthService {
             emailConfirmed,
           };
           
-          // Create user in our database
           try {
             const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users`, {
               method: 'POST',
@@ -55,29 +52,14 @@ class AuthService {
             });
             
             if (response.status === 202) {
-              // User creation pending email confirmation
-              console.log('⏳ User creation pending email confirmation');
               return { 
                 user: null, 
                 requiresEmailConfirmation: true,
                 error: 'Please check your email and confirm your account before signing in.'
               };
             }
-            
-            if (!response.ok) {
-              const errorData = await response.json();
-              console.error('❌ Failed to create user in database:', errorData);
-              
-              // Handle specific error cases
-              if (errorData.error === 'Email already registered with a different account') {
-                console.warn('⚠️ Email already registered, continuing with authentication');
-              }
-            } else {
-              console.log('✅ User created in database');
-            }
           } catch (dbError) {
-            console.error('❌ Failed to create user in database:', dbError);
-            // Don't fail the signup if database creation fails
+            throw dbError;
           }
           
           if (!emailConfirmed) {
@@ -92,7 +74,6 @@ class AuthService {
         }
         return { user: null };
       } catch (error) {
-      console.error('❌ Supabase signup error:', error);
         return { 
           user: null, 
           error: error instanceof Error ? error.message : 'Signup failed' 
@@ -102,18 +83,14 @@ class AuthService {
 
   async signIn(email: string, password: string): Promise<AuthResponse> {
       try {
-      console.log('🔐 Using Supabase for signin');
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         
-        console.log('data.user: ', data.user);
-        
         if (error) throw error;
         
         if (data.user) {
-          // Check if email is confirmed
           const emailConfirmed = !!data.user.email_confirmed_at;
           
           if (!emailConfirmed) {
@@ -131,7 +108,6 @@ class AuthService {
             emailConfirmed,
           };
           
-          // Ensure user exists in our database
           try {
             const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users`, {
               method: 'POST',
@@ -147,8 +123,6 @@ class AuthService {
             });
             
             if (response.status === 202) {
-              // User creation pending email confirmation
-              console.log('⏳ User creation pending email confirmation');
               return { 
                 user: null, 
                 requiresEmailConfirmation: true,
@@ -158,26 +132,20 @@ class AuthService {
             
             if (!response.ok) {
               const errorData = await response.json();
-              console.error('❌ Failed to ensure user in database:', errorData);
               
-              // Handle specific error cases
               if (errorData.error === 'Email already registered with a different account') {
-                console.warn('⚠️ Email already registered, continuing with authentication');
+                console.warn('Email already registered, continuing with authentication');
               }
             } else {
-              console.log('✅ User ensured in database');
             }
           } catch (dbError) {
-            console.error('❌ Failed to ensure user in database:', dbError);
-            // Don't fail the signin if database creation fails
+            console.error('Failed to ensure user in database:', dbError);
           }
           
-        console.log('✅ Supabase signin successful:', user);
           return { user };
         }
         return { user: null };
       } catch (error) {
-      console.error('❌ Supabase signin error:', error);
         return { 
           user: null, 
           error: error instanceof Error ? error.message : 'Sign in failed' 
@@ -187,13 +155,10 @@ class AuthService {
 
   async signOut(): Promise<AuthResponse> {
       try {
-      console.log('🚪 Using Supabase for signout');
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
-      console.log('✅ Supabase signout successful');
         return { user: null };
       } catch (error) {
-      console.error('❌ Supabase signout error:', error);
         return { 
           user: null, 
           error: error instanceof Error ? error.message : 'Sign out failed' 
@@ -203,42 +168,24 @@ class AuthService {
 
   async getCurrentUser(): Promise<User | null> {
     try {
-      console.log('🔍 Getting current user from Supabase');
-      
-      // First check if we have a session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
-        console.error('❌ Error getting session:', sessionError);
         return null;
       }
       
       if (!session) {
-        console.log('ℹ️ No active Supabase session found');
         return null;
       }
       
-      console.log('✅ Supabase session found, checking user...');
-      
-      // Get user from session
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError) {
-        console.error('❌ Error getting user:', userError);
         return null;
       }
       
         if (user) {
           const emailConfirmed = user.email_confirmed_at !== null;
           
-          console.log('🔍 User found:', {
-            id: user.id,
-            email: user.email,
-            email_confirmed_at: user.email_confirmed_at,
-            emailConfirmed
-          });
-          
-          // Only return user if email is confirmed
           if (!emailConfirmed) {
-            console.log('⚠️ User email not confirmed, returning null');
             return null;
           }
           
@@ -248,13 +195,10 @@ class AuthService {
             name: user.email?.split('@')[0] || 'User',
             emailConfirmed,
           };
-        console.log('✅ Current Supabase user found:', userData);
         return userData;
         }
-      console.log('ℹ️ No Supabase user found');
         return null;
       } catch (error) {
-      console.error('❌ Error getting current Supabase user:', error);
         return null;
     }
   }
@@ -282,9 +226,6 @@ class AuthService {
 
   async checkEmailConfirmation(email: string): Promise<{ confirmed: boolean; error?: string }> {
     try {
-      console.log('🔍 Checking email confirmation status for:', email);
-      
-      // Use our backend endpoint to check email confirmation status
       const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users/check-email/${encodeURIComponent(email)}`, {
         method: 'GET',
         headers: {
@@ -294,28 +235,22 @@ class AuthService {
 
       if (!response.ok) {
         if (response.status === 404) {
-          console.log('ℹ️ User not found for email:', email);
           return { confirmed: false };
         }
         const errorData = await response.json();
-        console.error('❌ Error checking email confirmation:', errorData);
         return { confirmed: false, error: errorData.error || 'Failed to check email confirmation' };
       }
 
       const data = await response.json();
-      console.log('📧 Email confirmation status:', data);
       
       return { confirmed: data.confirmed || false };
     } catch (error) {
-      console.error('❌ Error checking email confirmation:', error);
       return { confirmed: false, error: error instanceof Error ? error.message : 'Failed to check email confirmation' };
     }
   }
 
   async createConfirmedUser(userId: string, email: string, name: string): Promise<AuthResponse> {
     try {
-      console.log('✅ Creating confirmed user after email confirmation');
-      
       const response = await fetch(`http://localhost:${import.meta.env.VITE_PORT || 3001}/api/users/confirmed`, {
         method: 'POST',
         headers: {
@@ -334,11 +269,9 @@ class AuthService {
       }
 
       const userData = await response.json();
-      console.log('✅ Confirmed user created successfully:', userData);
       
       return { user: userData };
     } catch (error) {
-      console.error('❌ Error creating confirmed user:', error);
       return { 
         user: null, 
         error: error instanceof Error ? error.message : 'Failed to create confirmed user' 
@@ -347,7 +280,6 @@ class AuthService {
   }
 
   onAuthStateChange(callback: (event: string, session: unknown) => void) {
-    console.log('🔧 Setting up Supabase auth state listener');
       return supabase.auth.onAuthStateChange(callback);
   }
 }

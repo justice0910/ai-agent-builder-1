@@ -7,7 +7,6 @@ export const executePipeline = async (req: Request, res: Response) => {
   try {
     const { steps, input } = req.body;
 
-    // Validate request
     if (!steps || !Array.isArray(steps)) {
       return res.status(400).json({ 
         error: 'Invalid request: steps array is required' 
@@ -20,7 +19,6 @@ export const executePipeline = async (req: Request, res: Response) => {
       });
     }
 
-    // Validate each step
     for (const step of steps) {
       if (!step.id || !step.type || !step.config) {
         return res.status(400).json({ 
@@ -29,22 +27,13 @@ export const executePipeline = async (req: Request, res: Response) => {
       }
     }
 
-    console.log('🤖 Executing AI pipeline with steps:', steps.length);
-    console.log('📝 Input text length:', input.length);
-
     const result = await aiService.executePipeline(steps, input);
-
-    console.log('✅ Pipeline execution completed');
-    console.log('⏱️ Total processing time:', result.totalProcessingTime, 'ms');
 
     res.json(result);
 
   } catch (error) {
-    console.error('❌ Pipeline execution failed:', error);
+ const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
-    // Check if it's a language restriction error
     if (errorMessage.includes('restricted')) {
       return res.status(400).json({ 
         error: 'Language restriction',
@@ -71,20 +60,13 @@ export const generatePipelineSteps = async (req: Request, res: Response) => {
       });
     }
 
-    console.log('🤖 Generating pipeline steps from instruction:', instruction);
-
     const steps = await aiService.generatePipelineSteps(instruction);
-
-    console.log('✅ Pipeline steps generated:', steps.length);
 
     res.json({ steps });
 
   } catch (error) {
-    console.error('❌ Pipeline step generation failed:', error);
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
-    // Check if it's a language restriction error
     if (errorMessage.includes('restricted')) {
       return res.status(400).json({ 
         error: 'Language restriction',

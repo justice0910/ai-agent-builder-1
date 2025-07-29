@@ -4,9 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import {  Mail, Lock, Bot, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
+import {  Mail, Lock, Bot, AlertCircle, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const Auth : React.FC = () => {
@@ -20,17 +19,14 @@ export const Auth : React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check if user is returning from email confirmation
   useEffect(() => {
     const confirmed = searchParams.get('confirmed');
     if (confirmed === 'true') {
       toast.success('Email confirmed! You can now sign in.');
-      // Clear any pending email state
       setPendingEmail('');
     }
   }, [searchParams]);
 
-  // Check if user was redirected due to unconfirmed email
   useEffect(() => {
     const emailConfirmation = searchParams.get('emailConfirmation');
     if (emailConfirmation === 'true' && user) {
@@ -39,19 +35,16 @@ export const Auth : React.FC = () => {
     }
   }, [searchParams, user]);
 
-  // Handle email confirmation check when user returns from email link
   useEffect(() => {
     const confirmed = searchParams.get('confirmed');
     if (confirmed === 'true' && email) {
       setIsCheckingConfirmation(true);
-      // Try to sign in automatically after email confirmation
       const attemptAutoSignIn = async () => {
         try {
           await login(email, password);
           toast.success('Email confirmed and signed in successfully!');
           navigate('/dashboard');
         } catch (error) {
-          console.log('Auto sign-in failed, user needs to sign in manually');
           setIsCheckingConfirmation(false);
           toast.info('Email confirmed! Please sign in with your credentials.');
         }
@@ -66,26 +59,6 @@ export const Auth : React.FC = () => {
     }
   }, [searchParams, email, password, login, navigate]);
 
-  // Handle email confirmation completion
-  const handleEmailConfirmed = async () => {
-    if (!email || !password) {
-      toast.error('Please enter your email and password to sign in.');
-      return;
-    }
-
-    setIsCheckingConfirmation(true);
-    try {
-      await login(email, password);
-      toast.success('Email confirmed and signed in successfully!');
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Failed to sign in after email confirmation:', error);
-      setIsCheckingConfirmation(false);
-      toast.error('Email confirmed, but sign in failed. Please try again.');
-    }
-  };
-
-  // Redirect authenticated users to dashboard (only if email is confirmed)
   useEffect(() => {
     if (isAuthenticated && user && user.emailConfirmed) {
       navigate('/dashboard');
@@ -95,7 +68,6 @@ export const Auth : React.FC = () => {
   const handleAuth = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     
-    // Validate password confirmation for signup
     if (isSignUp && password !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -127,7 +99,6 @@ export const Auth : React.FC = () => {
     }
   };
 
-  // Show loading state when checking email confirmation
   if (isCheckingConfirmation) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -145,13 +116,11 @@ export const Auth : React.FC = () => {
     );
   }
 
-  // Show email confirmation UI
   if (requiresEmailConfirmation || pendingEmail) {
     
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo/Branding */}
           <div className="text-center mb-8">
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
               <Bot className="h-8 w-8 text-primary-foreground" />
@@ -235,7 +204,6 @@ export const Auth : React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo/Branding */}
         <div className="text-center mb-8">
                       <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
               <Bot className="h-8 w-8 text-primary-foreground" />
@@ -347,7 +315,6 @@ export const Auth : React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Features Preview */}
         <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground mb-4">Trusted by AI enthusiasts worldwide</p>
           <div className="flex justify-center gap-2 sm:gap-4 md:gap-6 text-xs text-muted-foreground flex-wrap">

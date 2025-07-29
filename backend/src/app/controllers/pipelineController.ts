@@ -7,12 +7,10 @@ type Request = express.Request;
 type Response = express.Response;
 
 export class PipelineController {
-  // Create a new pipeline
   static async create(req: Request, res: Response) {
     try {
       const { name, description, userId, steps } = req.body;
       
-      // Validate input
       if (!name?.trim()) {
         return res.status(400).json({ error: 'Pipeline name is required' });
       }
@@ -25,29 +23,24 @@ export class PipelineController {
         return res.status(400).json({ error: 'At least one step is required' });
       }
 
-      // Check if user exists, create if not
       let user = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
       
       if (user.length === 0) {
-        // Create user with basic info from Supabase ID
         const [newUser] = await db.insert(schema.users).values({
           id: userId,
-          email: `${userId}@temp.com`, // Temporary email
-          name: `User ${userId.slice(0, 8)}`, // Temporary name
-          emailConfirmed: true, // Assume confirmed for now
+          email: `${userId}@temp.com`, 
+          name: `User ${userId.slice(0, 8)}`,
+          emailConfirmed: true, 
         }).returning();
         user = [newUser];
-        console.log('✅ Created user automatically:', newUser.id);
       }
 
-      // Create pipeline
       const [pipeline] = await db.insert(schema.pipelines).values({
         name: name.trim(),
         description: description?.trim(),
         userId: userId,
       }).returning();
 
-      // Create steps
       const stepsData = steps.map((step: any, index: number) => ({
         pipelineId: pipeline.id,
         type: step.type,
@@ -69,7 +62,6 @@ export class PipelineController {
         name: error instanceof Error ? error.name : 'Unknown'
       });
       
-      // Provide more specific error messages
       let errorMessage = 'Failed to create pipeline';
       if (error instanceof Error) {
         if (error.message.includes('foreign key constraint')) {
@@ -88,7 +80,6 @@ export class PipelineController {
     }
   }
 
-  // Get all pipelines for a user
   static async getAllByUser(req: Request, res: Response) {
     try {
       const { userId } = req.query;
@@ -103,7 +94,6 @@ export class PipelineController {
         .where(eq(schema.pipelines.userId, userId as string))
         .orderBy(schema.pipelines.createdAt);
 
-      // Get steps for each pipeline
       const pipelinesWithSteps = await Promise.all(
         pipelines.map(async (pipeline) => {
           const steps = await db
@@ -126,13 +116,11 @@ export class PipelineController {
     }
   }
 
-  // Get a specific pipeline
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { userId } = req.query;
 
-      // Get pipeline
       const [pipeline] = await db
         .select()
         .from(schema.pipelines)
@@ -145,7 +133,6 @@ export class PipelineController {
         return res.status(404).json({ error: 'Pipeline not found' });
       }
 
-      // Get steps for the pipeline
       const steps = await db
         .select()
         .from(schema.pipelineSteps)
@@ -162,13 +149,11 @@ export class PipelineController {
     }
   }
 
-  // Update a pipeline
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { name, description, steps, userId } = req.body;
 
-      // Validate input
       if (!name?.trim()) {
         return res.status(400).json({ error: 'Pipeline name is required' });
       }
@@ -177,7 +162,6 @@ export class PipelineController {
         return res.status(400).json({ error: 'User ID is required' });
       }
 
-      // Check if pipeline exists and belongs to user
       const [existingPipeline] = await db
         .select()
         .from(schema.pipelines)
@@ -187,7 +171,6 @@ export class PipelineController {
         return res.status(404).json({ error: 'Pipeline not found' });
       }
 
-      // Update pipeline
       const [updatedPipeline] = await db
         .update(schema.pipelines)
         .set({
@@ -198,14 +181,11 @@ export class PipelineController {
         .where(eq(schema.pipelines.id, id))
         .returning();
 
-      // Update steps if provided
       if (steps && steps.length > 0) {
-        // Delete existing steps
         await db
           .delete(schema.pipelineSteps)
           .where(eq(schema.pipelineSteps.pipelineId, id));
 
-        // Create new steps
         const stepsData = steps.map((step: any, index: number) => ({
           pipelineId: id,
           type: step.type,
@@ -216,7 +196,6 @@ export class PipelineController {
         await db.insert(schema.pipelineSteps).values(stepsData);
       }
 
-      // Get updated steps
       const updatedSteps = await db
         .select()
         .from(schema.pipelineSteps)
@@ -233,7 +212,6 @@ export class PipelineController {
     }
   }
 
-  // Delete a pipeline
   static async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -243,7 +221,6 @@ export class PipelineController {
         return res.status(400).json({ error: 'User ID is required' });
       }
 
-      // Check if pipeline exists and belongs to user
       const [pipeline] = await db
         .select()
         .from(schema.pipelines)
@@ -253,7 +230,6 @@ export class PipelineController {
         return res.status(404).json({ error: 'Pipeline not found' });
       }
 
-      // Delete pipeline (steps will be deleted due to cascade)
       await db
         .delete(schema.pipelines)
         .where(eq(schema.pipelines.id, id));
@@ -265,12 +241,10 @@ export class PipelineController {
     }
   }
 
-  // Execute a pipeline with real AI processing
   static async execute(req: Request, res: Response) {
     try {
       const { pipelineId, userId, input } = req.body;
       
-      // Validate input
       if (!pipelineId) {
         return res.status(400).json({ error: 'Pipeline ID is required' });
       }
@@ -283,7 +257,6 @@ export class PipelineController {
         return res.status(400).json({ error: 'Input text is required' });
       }
 
-      // Get pipeline with steps
       const [pipeline] = await db
         .select()
         .from(schema.pipelines)
@@ -303,7 +276,6 @@ export class PipelineController {
         return res.status(400).json({ error: 'Pipeline has no steps to execute' });
       }
 
-      // Create execution record
       const [execution] = await db.insert(schema.pipelineExecutions).values({
         pipelineId,
         userId,
@@ -311,7 +283,6 @@ export class PipelineController {
         status: 'running',
       }).returning();
 
-      // Process pipeline steps using AI service
       let currentInput = input.trim();
       const startTime = Date.now();
       const outputs: Array<{
@@ -321,11 +292,9 @@ export class PipelineController {
       }> = [];
 
       try {
-        // Use the dedicated AI service
         const { AiService } = await import('../../services/aiService.js');
         const aiService = new AiService();
         
-        // Convert database steps to AI service format
         const aiSteps = steps.map(step => ({
           id: step.id,
           type: step.type as 'summarize' | 'translate' | 'rewrite' | 'extract',
@@ -334,7 +303,6 @@ export class PipelineController {
         
         const result = await aiService.executePipeline(aiSteps, currentInput);
 
-        // Update execution with results
         const totalProcessingTime = Date.now() - startTime;
         await db
           .update(schema.pipelineExecutions)
@@ -345,7 +313,6 @@ export class PipelineController {
           })
           .where(eq(schema.pipelineExecutions.id, execution.id));
 
-        // Save outputs
         for (const output of result.outputs) {
           await db.insert(schema.pipelineExecutionOutputs).values({
             executionId: execution.id,
@@ -367,7 +334,6 @@ export class PipelineController {
         });
 
       } catch (error) {
-        // Update execution as failed
         const totalProcessingTime = Date.now() - startTime;
         await db
           .update(schema.pipelineExecutions)
@@ -391,7 +357,6 @@ export class PipelineController {
     }
   }
 
-  // Get execution history for a user
   static async getExecutions(req: Request, res: Response) {
     try {
       const { userId } = req.query;
@@ -413,13 +378,11 @@ export class PipelineController {
     }
   }
 
-  // Get execution details with outputs
   static async getExecutionDetails(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { userId } = req.query;
 
-      // Get execution
       const [execution] = await db
         .select()
         .from(schema.pipelineExecutions)
@@ -432,7 +395,6 @@ export class PipelineController {
         return res.status(404).json({ error: 'Execution not found' });
       }
 
-      // Get outputs
       const outputs = await db
         .select()
         .from(schema.pipelineExecutionOutputs)

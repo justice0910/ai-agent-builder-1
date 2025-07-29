@@ -81,7 +81,6 @@ export function PipelineManager() {
         steps: formData.steps,
       });
 
-      // Reset form
       setFormData({
         name: '',
         description: '',
@@ -164,7 +163,6 @@ export function PipelineManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Pipeline Manager</h1>
@@ -178,7 +176,6 @@ export function PipelineManager() {
         </Button>
       </div>
 
-      {/* Error Display */}
       {error && (
         <Alert>
           <AlertDescription>
@@ -190,7 +187,6 @@ export function PipelineManager() {
         </Alert>
       )}
 
-      {/* Search */}
       <div className="flex gap-2">
         <Input
           placeholder="Search pipelines..."
@@ -203,7 +199,6 @@ export function PipelineManager() {
         </Button>
       </div>
 
-      {/* Create/Edit Form */}
       {(showCreateForm || editingPipeline) && (
         <Card>
           <CardHeader>
@@ -294,7 +289,6 @@ export function PipelineManager() {
         </Card>
       )}
 
-      {/* Pipelines List */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {isLoadingPipelines ? (
           <div className="col-span-full flex justify-center">

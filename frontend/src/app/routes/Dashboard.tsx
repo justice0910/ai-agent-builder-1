@@ -42,7 +42,6 @@ export const Dashboard: React.FC = () => {
   const [showPipelineList, setShowPipelineList] = useState(true);
   const [showChatInterface, setShowChatInterface] = useState(false);
 
-  // Clear errors when component mounts
   useEffect(() => {
     if (error) {
       toast.error(error);
@@ -63,7 +62,6 @@ export const Dashboard: React.FC = () => {
       throw new Error('No steps in pipeline');
     }
 
-    console.log('🚀 Running pipeline with real AI service');
     return realAiService.executePipeline(currentPipeline.steps, input);
   };
 
@@ -85,7 +83,6 @@ export const Dashboard: React.FC = () => {
 
     try {
       if (isNewPipeline) {
-        // Create new pipeline
         await createPipeline({
           name: pipelineName.trim(),
           description: pipelineDescription.trim(),
@@ -98,7 +95,6 @@ export const Dashboard: React.FC = () => {
         toast.success('Pipeline created successfully!');
         setIsNewPipeline(false);
       } else {
-        // Update existing pipeline
         await updatePipeline({
           id: currentPipeline.id,
           data: {
@@ -114,19 +110,15 @@ export const Dashboard: React.FC = () => {
         toast.success('Pipeline updated successfully!');
       }
     } catch (error) {
-      console.error('Failed to save pipeline:', error);
       toast.error('Failed to save pipeline. Please try again.');
     }
   };
 
   const handleRunFromBuilder = async () => {
-    // This is called from the builder when user clicks "Run Pipeline"
-    // For now, we'll just show a message that they should use the test panel
     toast.info('Use the Test Panel below to run your pipeline with custom input');
   };
 
   const handleSelectPipeline = (pipeline: any) => {
-    // Convert backend pipeline to frontend pipeline format
     const frontendPipeline: Pipeline = {
       id: pipeline.id,
       name: pipeline.name,
@@ -154,7 +146,6 @@ export const Dashboard: React.FC = () => {
       await deletePipeline(pipelineId);
       toast.success('Pipeline deleted successfully');
       
-      // If we're currently editing the deleted pipeline, reset to new pipeline
       if (currentPipeline.id === pipelineId) {
         setCurrentPipeline({
           id: 'default',
@@ -169,7 +160,6 @@ export const Dashboard: React.FC = () => {
         setIsNewPipeline(true);
       }
     } catch (error) {
-      console.error('Failed to delete pipeline:', error);
       toast.error('Failed to delete pipeline. Please try again.');
     }
   };

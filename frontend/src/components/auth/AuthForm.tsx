@@ -29,7 +29,6 @@ export function AuthForm({ mode, onSubmit, onModeChange, loading = false }: Auth
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo/Branding */}
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-ai-primary to-ai-secondary rounded-2xl flex items-center justify-center mb-4">
             <Zap className="h-8 w-8 text-primary-foreground" />
@@ -136,7 +135,6 @@ export function AuthForm({ mode, onSubmit, onModeChange, loading = false }: Auth
           </CardContent>
         </Card>
 
-        {/* Features Preview */}
         <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground mb-4">Trusted by AI enthusiasts worldwide</p>
           <div className="flex justify-center gap-6 text-xs text-muted-foreground">

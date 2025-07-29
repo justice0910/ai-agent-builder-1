@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Bot, Play, Code, Brain, Users, CheckCircle } from 'lucide-react';
+import { ArrowRight, Bot, Play, CheckCircle } from 'lucide-react';
 import heroImage from '@/assets/hero-ai-pipeline.jpg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,7 +12,6 @@ export const Home: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect authenticated users to dashboard
   useEffect(() => {
     if (isAuthenticated && user && user.emailConfirmed) {
       navigate('/dashboard');
@@ -54,7 +52,6 @@ export const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Navigation */}
       <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -72,7 +69,6 @@ export const Home: React.FC = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="relative overflow-hidden py-20 md:py-32">
         <div className="absolute inset-0 animated-bg" />
         <div className="container mx-auto px-4 relative">
@@ -111,7 +107,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -137,7 +132,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Use Cases Section */}
       <section className="py-20 bg-gradient-to-br from-muted/50 to-background">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -170,7 +164,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 border-t border-border">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto space-y-8">
@@ -196,7 +189,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-border py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
