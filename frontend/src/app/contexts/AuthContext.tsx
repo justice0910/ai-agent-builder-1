@@ -10,6 +10,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<void>;
   checkEmailConfirmation: (email: string) => Promise<boolean>;
+  resetAll: () => Promise<void>;
   isLoading: boolean;
   requiresEmailConfirmation: boolean;
   isAuthenticated: boolean; // New: indicates if auth check is complete
@@ -265,6 +266,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const resetAll = async () => {
+    setUser(null);
+    setIsLoading(false);
+    setIsAuthenticated(false);
+    setRequiresEmailConfirmation(false);
+  }
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -273,6 +281,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       logout, 
       resendConfirmationEmail,
       checkEmailConfirmation,
+      resetAll,
       isLoading, 
       requiresEmailConfirmation,
       isAuthenticated
