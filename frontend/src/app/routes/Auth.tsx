@@ -103,8 +103,8 @@ export const Auth : React.FC = () => {
     
     try {
       if (isSignUp) {
-        await signup(email, password);
         setPendingEmail(email);
+        await signup(email, password);
         toast.success('Account created! Please check your email to confirm your account.');
       } else {
         await login(email, password);
@@ -147,6 +147,7 @@ export const Auth : React.FC = () => {
 
   // Show email confirmation UI
   if (requiresEmailConfirmation || pendingEmail) {
+    
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
@@ -210,15 +211,6 @@ export const Auth : React.FC = () => {
                       Resend Confirmation Email
                     </>
                   )}
-                </Button>
-                
-                <Button 
-                  onClick={handleEmailConfirmed}
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  disabled={!email || !password || isLoading}
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  I've Confirmed My Email - Sign Me In
                 </Button>
                 
                 <Button 
