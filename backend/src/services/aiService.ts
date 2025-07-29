@@ -28,6 +28,16 @@ export interface PipelineExecution {
   createdAt: string;
 }
 
+// Supported languages for translation
+const SUPPORTED_LANGUAGES = [
+  'English', 'Spanish', 'French', 'German', 'Italian', 
+  'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Russian',
+  'Arabic', 'Hindi', 'Dutch', 'Swedish', 'Norwegian',
+  'Danish', 'Finnish', 'Polish', 'Czech', 'Hungarian',
+  'Romanian', 'Bulgarian', 'Greek', 'Turkish', 'Hebrew',
+  'Thai', 'Vietnamese', 'Indonesian', 'Malay', 'Filipino'
+];
+
 export class AiService {
   private apiKey: string;
 
@@ -36,6 +46,16 @@ export class AiService {
     if (!this.apiKey) {
       console.warn('⚠️ GROQ_API_KEY not found in environment variables');
     }
+  }
+
+  // Validate if a language is supported
+  private validateLanguage(language: string): boolean {
+    return SUPPORTED_LANGUAGES.includes(language);
+  }
+
+  // Get list of supported languages
+  getSupportedLanguages(): string[] {
+    return [...SUPPORTED_LANGUAGES];
   }
 
   async executePipeline(steps: PipelineStep[], input: string): Promise<PipelineExecution> {
@@ -128,6 +148,11 @@ Please provide only the summary without any additional explanations.`;
   private async translate(input: string, config: StepConfig): Promise<string> {
     const { targetLanguage = 'Spanish' } = config;
     
+    // Validate the target language
+    if (!this.validateLanguage(targetLanguage)) {
+      throw new Error(`The suggested language "${targetLanguage}" is restricted. Please choose from the supported languages.`);
+    }
+    
     const prompt = `Please translate the following text to ${targetLanguage}. 
     
 Text to translate:
@@ -214,6 +239,9 @@ Available step types:
 3. rewrite - Adjust tone and style of text
 4. extract - Extract key information from text
 
+IMPORTANT: For translation steps, only use these supported languages:
+${SUPPORTED_LANGUAGES.join(', ')}
+
 User instruction: "${instruction}"
 
 Please respond with a JSON array of pipeline steps. Each step should have:
@@ -234,7 +262,7 @@ Example response format:
     "id": "step2", 
     "type": "translate",
     "config": {
-      "targetLanguage": "Italian"
+      "targetLanguage": "Spanish"
     }
   }
 ]
@@ -266,6 +294,13 @@ Respond with only the JSON array, no additional text.`;
         
         if (!['summarize', 'translate', 'rewrite', 'extract'].includes(step.type)) {
           throw new Error(`Invalid step type: ${step.type}`);
+        }
+
+        // Validate language for translation steps
+        if (step.type === 'translate' && step.config.targetLanguage) {
+          if (!this.validateLanguage(step.config.targetLanguage)) {
+            throw new Error(`The suggested language "${step.config.targetLanguage}" is restricted. Please choose from the supported languages.`);
+          }
         }
       }
 

@@ -82,10 +82,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     } catch (error) {
       console.error('Failed to generate pipeline steps:', error);
       
+      let errorContent = `Sorry, I couldn't generate the pipeline steps. Please try again with a different description.`;
+      
+      // Check if it's a language restriction error
+      if (error instanceof Error && error.message.includes('restricted')) {
+        errorContent = `The suggested language is restricted. Please try again with a supported language like English, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, or other common languages.`;
+      } else if (error instanceof Error) {
+        errorContent = `Sorry, I couldn't generate the pipeline steps. ${error.message}`;
+      }
+      
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: `Sorry, I couldn't generate the pipeline steps. Please try again with a different description. Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: errorContent,
         timestamp: new Date(),
       };
 

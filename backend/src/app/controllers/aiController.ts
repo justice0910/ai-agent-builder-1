@@ -44,6 +44,15 @@ export const executePipeline = async (req: Request, res: Response) => {
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
+    // Check if it's a language restriction error
+    if (errorMessage.includes('restricted')) {
+      return res.status(400).json({ 
+        error: 'Language restriction',
+        message: errorMessage,
+        status: 'failed'
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Pipeline execution failed',
       message: errorMessage,
@@ -74,6 +83,15 @@ export const generatePipelineSteps = async (req: Request, res: Response) => {
     console.error('❌ Pipeline step generation failed:', error);
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    // Check if it's a language restriction error
+    if (errorMessage.includes('restricted')) {
+      return res.status(400).json({ 
+        error: 'Language restriction',
+        message: errorMessage,
+        status: 'failed'
+      });
+    }
     
     res.status(500).json({ 
       error: 'Pipeline step generation failed',

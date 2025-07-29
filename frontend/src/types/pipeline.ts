@@ -63,7 +63,13 @@ export const STEP_CONFIGS = {
     icon: '🌐',
     color: 'from-green-500 to-green-600',
     options: {
-      targetLanguage: ['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean']
+      targetLanguage: [
+        'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 
+        'Chinese', 'Japanese', 'Korean', 'Russian', 'Arabic', 'Hindi', 
+        'Dutch', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Polish', 
+        'Czech', 'Hungarian', 'Romanian', 'Bulgarian', 'Greek', 'Turkish', 
+        'Hebrew', 'Thai', 'Vietnamese', 'Indonesian', 'Malay', 'Filipino'
+      ]
     }
   },
   rewrite: {
